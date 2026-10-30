@@ -88,8 +88,6 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 .card .front { background: #fff; box-shadow: 0 4px 10px rgba(50, 70, 130, .4), 0 0 0 1px rgba(40, 50, 90, .35); } .card .front img { width: 100%; height: 100%; display: block; object-fit: cover; user-select: none; }
 .card .back { transform: rotateY(180deg); background: var(--back); box-shadow: 0 4px 10px rgba(50, 70, 130, .4), 0 0 0 1px rgba(20, 30, 70, .4); }
 .card .holo, .card .glare, .card .spark { display: none; position: absolute; inset: 0; pointer-events: none; border-radius: var(--r); }
-.card:hover:not(.fcard) { translate: 0 -3px; }
-.card.hand:hover { translate: 0 -16%; scale: 1.06; z-index: 9000 !important; } .card.hand.dragging:hover { translate: none; scale: none; }
 .card.hand.playable .front { box-shadow: 0 0 0 3px #3fe0f0, 0 0 16px rgba(34, 207, 228, .75), 0 4px 10px rgba(50, 70, 130, .4); }
 .myturn .card.hand:not(.playable) { filter: brightness(.82) saturate(.7); }
 .card.dragging { opacity: .25; } .card.targetable .front { animation: tgt 1s ease-in-out infinite; } .card.targetable { cursor: crosshair; }
@@ -178,7 +176,7 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 #float .x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #eef2fb; box-shadow: var(--soft-s); font-size: 14px; }
 
 /* ================= responsive ================= */
-@media (hover: none) { #inspector { display: none; } .card:hover:not(.fcard), .card.hand:hover { translate: none; scale: none; } }
+@media (hover: none) { #inspector { display: none; } }
 @media (max-width: 900px), (max-height: 520px) {
   .who { font-size: 12px; padding: 5px 11px; } .who.bot { display: none; } .hudbtns { gap: 6px; } .hudbtns button { width: 36px; height: 36px; font-size: 14px; }
   .btn.end { right: 8px; padding: 10px 18px; font-size: 15px; } #hint { display: none; } #log { right: 8px; top: 52px; width: min(300px, 86vw); font-size: 12px; }
@@ -200,3 +198,16 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 .opt .seg button { flex: 1; border: 0; border-radius: 999px; padding: 9px 4px; font-weight: 800; font-size: 13px; background: #eef2fb; color: var(--dim); box-shadow: var(--soft-s); }
 .opt .seg .a.sel { background: linear-gradient(#ffb25a, #ff8a2a); color: #fff; } .opt .seg .bn.sel { background: linear-gradient(#3fe0f0, #17bfd9); color: #fff; } .opt .seg button:disabled { opacity: .35; }
 .opt.setupopt.act::after, .opt.setupopt.on::after { display: none; }
+
+/* hover lift lives on the inner layer so the card's hit area never moves (prevents flicker) */
+.card:not(.fcard) .inner { transition: transform .18s ease-out; }
+@media (hover: hover) {
+  .card.pk:not(.down):hover .inner { transform: translateY(-4px); }
+  .card.hand:not(.down):hover { z-index: 9000 !important; }
+  .card.hand:not(.down):hover .inner { transform: translateY(-17%) scale(1.07); }
+  .card.hand.dragging:hover .inner { transform: none; }
+}
+
+/* steady floating card: no bobbing, small smooth tilt only */
+#float .fcard.card { animation: none; } #float .fshadow { animation: none; }
+#float .fcard .inner { transition: transform .35s cubic-bezier(.2, .8, .2, 1); }

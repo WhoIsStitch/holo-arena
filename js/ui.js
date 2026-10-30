@@ -5,6 +5,7 @@ import { FX, TYPE_COLOR } from './fx.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function makeLayout(W, H) {
   const port = H > W * 1.05, m = 10, cx = W / 2; let ch, cw, pos, bx, stadium, gap;
@@ -170,8 +171,8 @@ export class BoardUI {
     $('.x', root).onclick = () => this.closeFloat(); root.classList.add('on'); this.floatOpen = true;
     const fc = $('.fcard', root), r0 = fromEl && fromEl.getBoundingClientRect();
     if (r0) requestAnimationFrame(() => { const r1 = fc.getBoundingClientRect(); const dx = r0.left + r0.width / 2 - (r1.left + r1.width / 2), dy = r0.top + r0.height / 2 - (r1.top + r1.height / 2), s = r0.width / r1.width; fc.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s})`, filter: 'brightness(1.4)' }, { transform: 'none', filter: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,.9,.25,1.1)' }); });
-    const tilt = (e) => { const r = fc.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * 100, py = (e.clientY - r.top) / r.height * 100; fc.style.setProperty('--mx', px.toFixed(1)); fc.style.setProperty('--my', py.toFixed(1)); fc.style.setProperty('--rx', ((50 - py) * 0.22).toFixed(1) + 'deg'); fc.style.setProperty('--ry', ((px - 50) * 0.28).toFixed(1) + 'deg'); };
-    root.querySelector('.fstage').addEventListener('pointermove', tilt); root.querySelector('.fstage').addEventListener('pointerleave', () => { fc.style.setProperty('--rx', '0deg'); fc.style.setProperty('--ry', '0deg'); });
+    const tilt = (e) => { const r = fc.getBoundingClientRect(); const px = clampN((e.clientX - r.left) / r.width * 100, 0, 100), py = clampN((e.clientY - r.top) / r.height * 100, 0, 100); fc.style.setProperty('--mx', px.toFixed(1)); fc.style.setProperty('--my', py.toFixed(1)); fc.style.setProperty('--rx', ((50 - py) * 0.09).toFixed(2) + 'deg'); fc.style.setProperty('--ry', ((px - 50) * 0.11).toFixed(2) + 'deg'); };
+    fc.addEventListener('pointermove', tilt); fc.addEventListener('pointerleave', () => { fc.style.setProperty('--rx', '0deg'); fc.style.setProperty('--ry', '0deg'); });
     $('.fback', root).onclick = () => this.closeFloat();
   }
   closeFloat() { const r = $('#float'); if (!this.floatOpen) return; this.floatOpen = false; r.classList.remove('on'); }
