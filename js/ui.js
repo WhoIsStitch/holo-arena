@@ -137,7 +137,7 @@ export class BoardUI {
       this.zones[side + 'Lost'].querySelector('.cnt').textContent = pl.lost.length || ''; this.zones[side + 'Prize'].querySelector('.cnt').textContent = pl.prizeN;
       this.zones[side + 'Active'].classList.toggle('on', v.cur === i); }
     $('#handBtn').textContent = `Hand · ${v.pl[v.me].handN}`;
-    $('#whoMe').innerHTML = this.who(v, v.me); $('#whoOpp').innerHTML = this.who(v, 1 - v.me);
+    $('#whoMe').innerHTML = this.who(v, v.me); $('#whoOpp').innerHTML = this.who(v, 1 - v.me) + (v.turnNo ? `<small> · Turn ${v.turnNo}</small>` : '');
     $('#whoMe').classList.toggle('turn', v.cur === v.me && !v.winner); $('#whoOpp').classList.toggle('turn', v.cur !== v.me && !v.winner);
     const tp = $('#turnPill'); const mine = v.cur === v.me; tp.textContent = v.turnNo ? (mine ? 'Your turn' : "Opponent's turn") : 'Setting up'; tp.className = v.turnNo ? (mine ? 'me' : 'opp') : '';
     this.refreshInteractive();
@@ -212,6 +212,14 @@ export class BoardUI {
     $('#table').addEventListener('click', (e) => { if (this.suppress) { this.suppress = false; return; } const ce = e.target.closest('.card'); if (!ce) { this.closeMenu(); this.cancelTarget(); return; } this.clickCard(ce, e); });
     addEventListener('pointermove', (e) => this.moveDrag(e)); addEventListener('pointerup', (e) => this.upDrag(e));
     $('#handBtn').onclick = () => this.viewHand();
+    $('#btnCopy').onclick = async () => { const t = [...document.querySelectorAll('#log p')].map((p) => p.textContent).join('\n'); try { await navigator.clipboard.writeText(t || '(empty log)'); this.toast('Game log copied'); } catch (e) { this.toast('Could not copy the log'); } };
+    $('#btnFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { /* ignore */ } };
+    addEventListener('keydown', (e) => {
+      if (!$('#game').classList.contains('active') || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test((e.target || {}).tagName || '')) return;
+      const k = e.key.toLowerCase(), click = (id) => { const b = $(id); if (b && !b.disabled) b.click(); };
+      if (k === 'e') click('#endTurn'); else if (k === 'h') click('#handBtn'); else if (k === 'l') click('#btnLog'); else if (k === 'm') click('#btnMute'); else if (k === 'f') click('#btnFull'); else if (k === 'c') click('#btnEmote');
+      else if (k === '?') this.toast('Keys: E end turn · H hand · L log · C emotes · M mute · F fullscreen · Esc close');
+    });
     $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnEmote').onclick = () => { const m = this.modal(`<div class="dlg emotes"><h3>Say something</h3><div class="opts"></div></div>`); ['Good luck! 🍀', 'Nice move! 👏', 'Oops 😅', 'Hmm… 🤔', 'Wow! 😮', 'GG 🤝'].forEach((t) => { const b = mk('button', 'btn', esc(t)); b.onclick = () => { this.closeModal(); this.showEmote(this.view ? this.view.pl[this.view.me].name : 'You', t); this.onEmote && this.onEmote(t); }; $('.opts', m).append(b); }); m.onclick = (e) => { if (e.target === m) this.closeModal(); }; };
     $('#btnSurrender').onclick = () => this.onSurrender && this.onSurrender(); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
     $('#btnMute').onclick = () => { audio.setMuted(!audio.muted); $('#btnMute').textContent = audio.muted ? '🔇' : '🔊'; };
@@ -299,10 +307,11 @@ export class BoardUI {
   prompt(req, view) {
     return new Promise((resolve) => {
       this.resolve = resolve; this.req = req;
+      if (req.kind === 'main' && view && view.turnNo > 0) { document.title = '▶ Your turn — Holo Arena'; if (pref('vibrate', '0') === '1') try { navigator.vibrate && navigator.vibrate(180); } catch (e) { /* ignore */ } }
       this.queue = this.queue.then(() => { if (view && (!this.view || view.turnNo !== this.view.turnNo || true)) this.apply(view); if (req.kind === 'main') { this.refreshInteractive(); if (!this.shownTurn || this.shownTurn !== view.turnNo) this.shownTurn = view.turnNo; } else if (req.kind === 'select') this.select(req); else if (req.kind === 'setup') this.setup(req); });
     });
   }
-  answer(a) { const r = this.resolve; this.resolve = null; this.req = null; this.cancelTarget(); this.closeMenu(); this.closeSheet(); this.closeModal(); this.refreshInteractive(); if (r) r(a); }
+  answer(a) { document.title = 'Holo Arena — Online Card Battles'; const r = this.resolve; this.resolve = null; this.req = null; this.cancelTarget(); this.closeMenu(); this.closeSheet(); this.closeModal(); this.refreshInteractive(); if (r) r(a); }
   closeModal() { const m = $('#modal'); m.classList.add('hidden'); m.innerHTML = ''; }
   modal(html) { const m = $('#modal'); m.innerHTML = html; m.classList.remove('hidden'); return m; }
 
@@ -424,7 +433,8 @@ export class BoardUI {
   async coin(heads) { const w = $('#coinwrap'), c = $('#coin'); w.classList.add('on'); c.classList.remove('flip'); void c.offsetWidth; c.style.setProperty('--endx', (heads ? 1800 : 1980) + 'deg'); c.classList.add('flip'); audio.sfx('coin'); await sleep(1500); this.popText(innerWidth / 2, innerHeight / 2 + 130, heads ? 'HEADS' : 'TAILS', 'weak'); await sleep(650); w.classList.remove('on'); }
   end(won, reason) {
     this.onGameOver && this.onGameOver(won); const e = $('#end'); audio.sfx(won ? 'win' : 'lose'); e.className = won ? 'win' : 'lose';
-    e.innerHTML = `<h1>${won ? 'VICTORY' : 'DEFEAT'}</h1><p>${esc(reason || '')}</p><div class="row"><button class="btn" id="again">Play again</button><button class="btn alt" id="toMenu">Main menu</button></div>`;
+    const v = this.view, mine = v ? v.pl[v.me] : null, theirs = v ? v.pl[1 - v.me] : null;
+    e.innerHTML = `<h1>${won ? 'VICTORY' : 'DEFEAT'}</h1><p>${esc(reason || '')}</p>${v ? `<p class="sum">${v.turnNo} turns · Prize cards left: you ${mine.prizeN}, them ${theirs.prizeN} · Lost Zone: ${mine.lost.length}</p>` : ''}<div class="row"><button class="btn" id="again">Play again</button><button class="btn alt" id="toMenu">Main menu</button></div>`;
     if (won) { this.fx.confetti(260); setTimeout(() => this.fx.confetti(160), 1200); }
     $('#toMenu').onclick = () => this.onLeave && this.onLeave(true); $('#again').onclick = () => this.onAgain && this.onAgain();
   }

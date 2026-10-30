@@ -252,3 +252,7 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 
 .card { transition: transform calc(.6s * var(--spd, 1)) cubic-bezier(.2, .8, .2, 1), translate .2s ease-out, scale .2s ease-out, opacity .4s; } .card.snap { transition: none; }
 #table::before { filter: hue-rotate(var(--hue, 0deg)); }
+
+.shelf h3 .link { color: #fff; text-decoration: none; background: rgba(255, 255, 255, .22); border-radius: 999px; padding: 3px 12px; margin-left: 8px; font-size: 12px; letter-spacing: .06em; }
+.sel { flex: none; max-width: 190px; border: 0; border-radius: 999px; padding: 9px 14px; font: 800 13px 'Nunito'; color: var(--ink); background: #eef2fb; box-shadow: var(--soft-s); }
+#end p.sum { font-size: 16px; }

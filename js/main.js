@@ -40,7 +40,7 @@ const add = document.createElement('div'); add.className = 'deck addtile'; add.i
 }
 const sync = () => document.querySelectorAll('.deck:not(.addtile)').forEach((e) => e.classList.toggle('sel', e.dataset.id === deckId));
 renderDecks();
-const DEFAULT_RULES = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1, botLevel: 'normal', botSpeed: 650 };
+const DEFAULT_RULES = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1, botLevel: 'normal', botSpeed: 650, botDeck: 'random' };
 const getRules = () => ({ ...DEFAULT_RULES, ...(JSON.parse(store.get('rules', '{}') || '{}')) });
 function rulesText(r) {
   const out = []; if (r.vAsEx) out.push('V counts as ex'); if (r.noDeckOut) out.push("no deck-out loss"); if (r.firstTurn) out.push('attack/Supporter allowed turn 1');
@@ -65,6 +65,7 @@ function showRules() {
   head('Practice bot');
   row('Difficulty', 'Easy makes random moves some of the time', choice(() => r.botLevel, (v) => { r.botLevel = v; save(); }, [['Easy', 'easy'], ['Normal', 'normal']]));
   row('Speed', 'How long the bot thinks between moves', choice(() => r.botSpeed, (v) => { r.botSpeed = +v; save(); }, [['Fast', 250], ['Normal', 650], ['Slow', 1100]]));
+  { const sel = document.createElement('select'); sel.className = 'sel'; [['random', 'Random']].concat(decks.map((d) => [d.id, d.name])).forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; if (r.botDeck === v) o.selected = true; sel.append(o); }); sel.onchange = () => { r.botDeck = sel.value; save(); }; row('Bot deck', 'Which deck the practice bot plays', sel); }
   head('Sound & display');
   row('Music', 'Background music during games', sw(() => audio.music, (v) => audio.setMusic(v)));
   row('Volume', 'Master volume (0–10)', step(() => Math.round(audio.volume * 10), (v) => audio.setVolume(v / 10), 0, 10));
@@ -75,6 +76,7 @@ function showRules() {
   row('Confirm before ending', 'Asks first if you could still attack', flag('confirmend', '0'));
   row('Card preview on hover', 'Big preview of the card under your mouse (desktop)', flag('hover', '1'));
   row('Game log open', 'Show the game log when a game starts', flag('logopen', '0'));
+  row('Vibrate on your turn', 'Short buzz when it becomes your turn (phones)', flag('vibrate', '0'));
   head('Effects');
   row('Animation speed', 'How fast cards move and attacks play', choice(() => store.get('speed', '1'), (v) => { store.set('speed', v); ui.fit(); }, [['Fast', 0.5], ['Normal', 1], ['Slow', 1.5]]));
   row('Particle effects', 'Sparks, rings and confetti', flag('fx', '1'));
@@ -96,15 +98,31 @@ function importDeck() {
     deckId = d.id; store.set('deck', d.id); ui.closeModal(); renderDecks(); toast(`Saved "${d.name}"`);
   };
 }
+function deckText(d) {
+  const sec = { 0: [], 1: [], 2: [] }; d.list.forEach(([id, n]) => { const c = cards[id]; sec[c.cat === 'Pokemon' ? 0 : c.cat === 'Trainer' ? 1 : 2].push(`${n} ${c.name}`); });
+  return [`Pokémon: ${sec[0].length}`, ...sec[0], '', `Trainer: ${sec[1].length}`, ...sec[1], '', `Energy: ${sec[2].length}`, ...sec[2]].join('\n');
+}
+function showSample(d) {
+  const pool = d.list.flatMap(([id, n]) => Array(n).fill(id)); for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const hand = pool.slice(0, 7), basics = hand.filter((id) => cards[id].cat === 'Pokemon' && cards[id].stage === 'Basic').length;
+  const m = ui.modal(`<div class="dlg"><h3>Sample opening hand</h3><div class="sub">${basics ? `${basics} Basic Pokémon in this hand — you can start!` : 'No Basic Pokémon — this would be a mulligan.'}</div><div class="grid"></div><div class="foot2"><button class="btn" id="sBack">Back</button><button class="btn ok" id="sAgain">Draw again</button></div></div>`);
+  hand.forEach((id) => { const n = document.createElement('div'); n.className = 'opt'; n.innerHTML = `<img src="${cards[id].img}" alt=""><small>${cards[id].name}</small>`; m.querySelector('.grid').append(n); });
+  m.querySelector('#sAgain').onclick = () => showSample(d); m.querySelector('#sBack').onclick = () => viewDeck(d);
+}
 function viewDeck(d) {
   const counts = d.list.map(([id, n]) => ({ id, n, c: cards[id] })); const kind = (x) => (x.c.cat === 'Pokemon' ? 0 : x.c.cat === 'Trainer' ? 1 : 2);
   counts.sort((a, b) => kind(a) - kind(b) || a.c.name.localeCompare(b.c.name));
   const tot = [0, 0, 0]; counts.forEach((x) => (tot[kind(x)] += x.n));
-  const m = ui.modal(`<div class="dlg"><h3>${d.name}</h3><div class="sub">${d.count} cards · ${tot[0]} Pokémon · ${tot[1]} Trainers · ${tot[2]} Energy — tap a card to look closer</div><div class="grid"></div><div class="foot2"><button class="btn">Close</button>${d.custom ? '<button class="btn" id="delDeck">Delete deck</button>' : ''}</div></div>`);
+  const basics = counts.filter((x) => x.c.cat === 'Pokemon' && x.c.stage === 'Basic').reduce((a, x) => a + x.n, 0), evo = tot[0] - basics;
+  const m = ui.modal(`<div class="dlg"><h3>${d.name}</h3><div class="sub">${d.count} cards · ${tot[0]} Pokémon (${basics} Basic, ${evo} evolved) · ${tot[1]} Trainers · ${tot[2]} Energy — tap a card to look closer</div><div class="grid"></div><div class="foot2"><button class="btn" id="vClose">Close</button><button class="btn" id="vCopy">Copy list</button><button class="btn" id="vSample">Sample hand</button>${d.custom ? '<button class="btn" id="vRename">Rename</button><button class="btn" id="delDeck">Delete deck</button>' : ''}</div></div>`);
   counts.forEach((x) => { const n = document.createElement('div'); n.className = 'opt'; n.innerHTML = `<img src="${x.c.img}" alt=""><small><b>×${x.n}</b> ${x.c.name}</small>`; n.onclick = () => ui.sheet(x.id, [], null, n.querySelector('img')); m.querySelector('.grid').append(n); });
-  m.querySelector('.btn').onclick = () => ui.closeModal();
+  m.querySelector('#vClose').onclick = () => ui.closeModal();
+  m.querySelector('#vSample').onclick = () => showSample(d);
+  m.querySelector('#vCopy').onclick = async () => { try { await navigator.clipboard.writeText(deckText(d)); toast('Deck list copied — paste it anywhere, or into Import deck'); } catch (e) { toast('Could not copy'); } };
+  const ren = m.querySelector('#vRename'); if (ren) ren.onclick = () => { const nm = (prompt('Deck name', d.name) || '').trim().slice(0, 30); if (!nm) return; d.name = nm; store.set('customDecks', JSON.stringify(decks.filter((x) => x.custom))); ui.closeModal(); renderDecks(); };
   const del = m.querySelector('#delDeck'); if (del) del.onclick = () => { if (!confirm(`Delete "${d.name}"?`)) return; decks.splice(decks.indexOf(d), 1); store.set('customDecks', JSON.stringify(decks.filter((x) => x.custom))); if (deckId === d.id) { deckId = decks[0].id; store.set('deck', deckId); } ui.closeModal(); renderDecks(); };
 }
+document.getElementById('btnRandomDeck').onclick = () => { const d = decks[Math.floor(Math.random() * decks.length)]; deckId = d.id; store.set('deck', d.id); sync(); audio.sfx('click'); toast(`Deck: ${d.name}`); const el = document.querySelector(`.deck[data-id="${d.id}"]`); el && el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
 document.getElementById('btnRules').onclick = () => { audio.sfx('click'); showRules(); };
 const myName = () => { const n = ($('#name').value || '').trim().slice(0, 16) || 'Trainer'; store.set('name', $('#name').value.trim()); return n; };
 const preload = (list) => list.forEach(([id]) => { const i = new Image(); i.src = cards[id].img; });
@@ -160,7 +178,7 @@ ui.onGameOver = (won) => { const s = getStats(); won ? s.w++ : s.l++; jset('stat
 function startPractice(demo = params.get('demo') === '1', saved = null) {
   const s = (session = { kind: 'bot' }); role.set('bot'); let me, foe, names;
   if (saved) { me = deckById(saved.deckIds[0]); foe = deckById(saved.deckIds[1]); names = saved.names; }
-  else { me = deckById(deckId); const others = decks.filter((d) => d.id !== deckId); foe = others[Math.floor(Math.random() * others.length)] || me; names = [myName(), `Bot · ${foe.name.split(' — ')[0]}`]; }
+  else { me = deckById(deckId); const others = decks.filter((d) => d.id !== deckId); foe = (getRules().botDeck !== 'random' && deckById(getRules().botDeck)) || others[Math.floor(Math.random() * others.length)] || me; names = [myName(), `Bot · ${foe.name.split(' — ')[0]}`]; }
   s.names = names; s.deckIds = [me.id, foe.id]; preload(me.list); preload(foe.list); enterGame();
   const ctl = [demo ? { update: humanCtl.update, ask: (r, v) => new Bot({ delay: 500 }).ask(r, v) } : humanCtl, new Bot({ delay: getRules().botSpeed, level: getRules().botLevel })];
   const game = saved ? Game.restore(saved.snap, ctl) : new Game({ decks: [expandDeck(me.list), expandDeck(foe.list)], names, ctl, seed: Date.now(), rules: getRules() });
