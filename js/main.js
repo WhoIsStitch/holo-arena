@@ -126,3 +126,4 @@ $('#btnJoin').onclick = async () => {
 };
 
 window.__ui = ui;
+if (params.get('auto') === '1') setTimeout(() => startPractice(true), 600);   // test helper: bots play both sides

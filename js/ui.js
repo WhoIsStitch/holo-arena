@@ -10,12 +10,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function makeLayout(W, H) {
   const port = H > W * 1.05, m = 10, cx = W / 2; let ch, cw, pos, bx, stadium, gap;
   if (!port) {
-    ch = Math.min(H * 0.175, (W / 9.0) / 0.716); cw = ch * 0.716; gap = cw * 1.14;
-    const R = [0.105, 0.30, 0.50, 0.70, 0.893].map((f) => f * H), c1 = gap * 3.2;
+    ch = Math.min(H * 0.142, (W / 10.2) / 0.716, 215); cw = ch * 0.716; gap = cw * 1.22;
+    const R = [0.098, 0.288, 0.512, 0.708, 0.905].map((f) => f * H), c1 = gap * 3.3;
     pos = {
       me: { active: [cx, R[2]], benchY: R[3], deck: [cx + c1, R[2]], discard: [cx + c1, R[3]], lost: [cx - c1, R[3]], prizeAt: [cx - c1, R[2]], handY: R[4] },
       op: { active: [cx, R[1]], benchY: R[0], deck: [cx - c1, R[1]], discard: [cx - c1, R[0]], lost: [cx + c1, R[0]], prizeAt: [cx + c1, R[1]], handY: -ch * 0.3 } };
-    stadium = [cx + c1, (R[1] + R[2]) / 2];
+    stadium = [cx + cw * 2.3, (R[1] + R[2]) / 2];
   } else {
     cw = Math.min((W - 2 * m) / 5.45, H * 0.122 * 0.716); ch = cw / 0.716; gap = Math.max(cw * 1.04, (W - 2 * m - cw) / 4);
     const R = [0.118, 0.238, 0.356, 0.466, 0.58, 0.70, 0.815, 0.927].map((f) => f * H), p1 = m + cw * 0.55, p2 = p1 + cw * 1.14, p3 = p2 + cw * 1.14, pz = W - m - cw * 0.55;
@@ -182,7 +182,7 @@ export class BoardUI {
   closeSheet() { this.closeFloat(); }
   renderItems(items, host, sheet) {
     items.forEach((it) => {
-      if (it.t === 'hd') return host.append(mk('div', 'hd', it.text)); if (it.t === 'hr') return host.append(mk('hr')); if (it.t === 'note') return host.append(mk('div', 'eff', esc(it.text)));
+      if (it.t === 'hd') return host.append(mk('div', 'hd', it.text)); if (it.t === 'hr') return host.append(mk('hr')); if (it.t === 'note') return host.append(mk('div', 'eff why', esc(it.text)));
       const b = mk('button', '', it.html); b.disabled = !it.enabled; b.onclick = () => { this.closeMenu(); this.closeSheet(); it.fn(); }; host.append(b);
     });
   }
@@ -226,7 +226,7 @@ export class BoardUI {
     return 'Pokémon';
   }
   handItems(uid) {
-    const idx = this.legalIdx.hand.get(uid) || []; if (!idx.length) return [{ t: 'note', text: "This card can't be played right now." }];
+    const idx = this.legalIdx.hand.get(uid) || []; if (!idx.length) return [{ t: 'note', text: (this.req.why && this.req.why[uid]) || "This card can't be played right now." }];
     const items = [{ t: 'hd', text: idx.length > 1 || this.req.legal[idx[0]].target ? 'Choose where to play it' : 'Play it' }];
     idx.forEach((i) => { const a = this.req.legal[i]; let html;
       if (a.target) { const pk = this.pkByPid(a.target); const verb = { attach: 'Attach to', tool: 'Attach to', evolve: 'Evolve' }[a.t] || 'Use on'; html = `${verb} <b>${esc(this.targetName(a.target))}</b>` + (pk ? `<span class="eff">${pk.hp - pk.dmg}/${pk.hp} HP · ${pk.energy.length} Energy</span>` : ''); }
@@ -301,9 +301,9 @@ export class BoardUI {
   modal(html) { const m = $('#modal'); m.innerHTML = html; m.classList.remove('hidden'); return m; }
 
   select(req) {
-    const opts = req.options, cardy = opts.every((o) => o.id); const picked = new Set();
+    const opts = req.options, cardy = opts.every((o) => o.id); const picked = new Set(); if (req.forced) opts.forEach((o) => picked.add(o.key));
     const title = req.title || 'Choose';
-    const sub = req.max > 1 || req.min !== 1 ? `Choose ${req.min === req.max ? req.max : `${req.min}–${req.max}`}` : (req.zone === 'deck' ? 'From your deck' : '');
+    const sub = req.forced ? 'There are only this many to take, so they all go.' : req.max > 1 || req.min !== 1 ? `Choose ${req.min === req.max ? req.max : `${req.min}–${req.max}`}` : (req.zone === 'deck' ? 'From your deck' : '');
     const m = this.modal(`<div class="dlg"><h3>${esc(title)}</h3><div class="sub">${esc(sub)}</div>${cardy ? '<div class="grid"></div>' : '<div class="opts"></div>'}<div class="foot2"><span class="cntr"></span><button class="btn ok" disabled>Confirm</button></div></div>`);
     const conf = $('.btn', m), cntr = $('.cntr', m), upd = () => { cntr.textContent = req.max > 1 ? `${picked.size} / ${req.max} selected` : ''; conf.disabled = picked.size < req.min || picked.size > req.max; conf.textContent = req.min === 0 && !picked.size ? 'None / Done' : 'Confirm'; conf.disabled = conf.disabled && !(req.min === 0 && !picked.size); };
     const single = req.max === 1 && req.min === 1; if (single) $('.foot2', m).style.display = 'none';
@@ -313,7 +313,8 @@ export class BoardUI {
       if (cardy) { const d = D(o.id); let extra = d.name; if (o.pid) { const pk = this.pkByPid(o.pid); if (pk) extra = `${d.name} · ${pk.hp - pk.dmg}/${pk.hp} HP · ${pk.energy.length}⚡`; }
         node = mk('div', 'opt', `<img src="${d.img}" alt=""><small>${esc(extra)}</small>`); node.addEventListener('pointerenter', () => this.inspect(o.id)); node.addEventListener('pointerleave', () => this.inspect(null)); }
       else { node = mk('button', 'btn ' + (o.key === 'first' || o.key === 'yes' ? 'ok' : ''), esc(o.text || o.key)); }
-      node.onclick = () => { audio.sfx('click'); if (single) { this.inspect(null); return fin_(o.key); } if (picked.has(o.key)) picked.delete(o.key); else if (picked.size < req.max) picked.add(o.key); node.classList.toggle('on', picked.has(o.key)); upd(); };
+      if (req.forced) node.classList.add('on');
+      node.onclick = () => { if (req.forced) return; audio.sfx('click'); if (single) { this.inspect(null); return fin_(o.key); } if (picked.has(o.key)) picked.delete(o.key); else if (picked.size < req.max) picked.add(o.key); node.classList.toggle('on', picked.has(o.key)); upd(); };
       $(cardy ? '.grid' : '.opts', m).append(node);
     });
     const fin_ = (k) => { picked.clear(); picked.add(k); fin(); };

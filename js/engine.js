@@ -72,7 +72,10 @@ export class Game {
   /** options: [{key,id?,pid?,text?}]; returns array of chosen keys */
   async select(p, { title, options, min = 1, max = 1, purpose = 'misc', zone = null }) {
     if (!options.length) return [];
-    if (options.length <= min) return options.map((o) => o.key);
+    if (options.length <= min) {
+      if (zone && purpose === 'recover') await this.ask(p, { kind: 'select', title, options, min: options.length, max: options.length, purpose, zone, forced: true });
+      return options.map((o) => o.key);
+    }
     for (let tries = 0; tries < 5; tries++) {
       const ans = await this.ask(p, { kind: 'select', title, options, min, max, purpose, zone });
       const keys = Array.isArray(ans) ? ans : [];
@@ -222,7 +225,8 @@ export class Game {
     this.draw(p, 1); await this.sync();
     for (let n = 0; n < 80 && this.winner === null; n++) {
       const legal = this.legal(p);
-      const ans = await this.ask(p, { kind: 'main', legal });
+      const why = {}; for (const c of this.pl[p].hand) if (!legal.some((a) => a.card === c.uid)) why[c.uid] = this.whyNot(p, c);
+      const ans = await this.ask(p, { kind: 'main', legal, why });
       const a = legal[ans && ans.i];
       if (!a) continue;
       if (a.t === 'end') break;
@@ -236,6 +240,29 @@ export class Game {
     this.cur = 1 - p; await this.sync();
   }
 
+  whyNot(p, c) {
+    const me = this.pl[p], opp = this.pl[1 - p], d = D(c.id), first = this.turnNo === 1;
+    if (d.cat === 'Energy') return me.en ? 'You already attached an Energy card this turn.' : '';
+    if (d.cat === 'Pokemon') return d.stage === 'Basic' ? 'Your Bench is full (5 Pokémon).' : first || me.turns < 2 ? "You can't evolve on your first turn." : `Needs a ${d.evolveFrom} in play that has been there since your last turn.`;
+    if (d.trainerType === 'Tool') return 'Every Pokémon in play already holds a Tool.';
+    if (d.trainerType === 'Supporter' && me.sup) return 'You already played a Supporter this turn.';
+    if (d.trainerType === 'Supporter' && first) return "The player going first can't play a Supporter on their first turn.";
+    if (d.trainerType === 'Stadium') return me.stad ? 'You already played a Stadium this turn.' : 'A Stadium with the same name is already in play.';
+    if (d.trainerType === 'Item' && this.itemLock[p] === this.turnNo) return "Item cards can't be played this turn (Item lock).";
+    const own = me.bench.length, theirs = opp.bench.length;
+    const W = {
+      'Mirage Gate': () => `Needs 7 or more cards in the Lost Zone (you have ${me.lost.length}).`, 'Roxanne': () => `Only playable when your opponent has 3 or fewer Prize cards (they have ${opp.prizes.length}).`,
+      "Boss's Orders": () => 'Your opponent has no Benched Pokémon.', 'Counter Catcher': () => theirs ? `Needs more Prize cards remaining than your opponent (you ${me.prizes.length}, them ${opp.prizes.length}).` : 'Your opponent has no Benched Pokémon.',
+      'Prime Catcher': () => (!theirs ? 'Your opponent has no Benched Pokémon.' : 'You have no Benched Pokémon to switch with.'), 'Switch': () => 'You have no Benched Pokémon.',
+      'Switch Cart': () => (!own ? 'You have no Benched Pokémon.' : 'Your Active Pokémon must be a Basic Pokémon.'), 'Super Rod': () => 'No Pokémon or basic Energy in your discard pile.',
+      'Night Stretcher': () => 'No Pokémon or basic Energy in your discard pile.', "Lana's Aid": () => 'Nothing to take: no Pokémon without a Rule Box or basic Energy in your discard pile.',
+      'Ultra Ball': () => 'Needs 2 other cards in your hand to discard, and a Pokémon in your deck.', 'Earthen Vessel': () => 'Needs another card in your hand to discard.',
+      'Nest Ball': () => 'Your Bench is full, or there is no Basic Pokémon in your deck.', 'Buddy-Buddy Poffin': () => 'Your Bench is full, or there is no Basic Pokémon with 70 HP or less in your deck.',
+      'Rare Candy': () => "Needs a Basic Pokémon in play (not new this turn) and its Stage 2 in your hand. Not on your first turn.", 'Electric Generator': () => 'Needs a Benched Lightning Pokémon.',
+      'Crispin': () => 'No basic Energy in your deck.', 'Pokégear 3.0': () => 'Your deck is empty.',
+    };
+    return (W[d.name] ? W[d.name]() : '') || "Its requirements aren't met right now.";
+  }
   stadiumName() { return this.stadium ? D(this.stadium.id).name : null; }
   retreatCost(pk) {
     let c = this.dOf(pk).retreat || 0;
