@@ -28,8 +28,9 @@ export function canPay(cost, pool0) {
 }
 
 export class Game {
-  constructor({ decks, names = ['Player 1', 'Player 2'], ctl, seed = Date.now(), maxTurns = 400 }) {
+  constructor({ decks, names = ['Player 1', 'Player 2'], ctl, seed = Date.now(), maxTurns = 400, rules = {} }) {
     this.decks = decks; this.names = names; this.ctl = ctl; this.rs = seed >>> 0; this.maxTurns = maxTurns; this.onCheckpoint = null;
+    this.rules = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1, ...rules };
     this.uidc = 0; this.evq = []; this.turnNo = 0; this.cur = 0; this.winner = null; this.reason = ''; this.stadium = null; this.stadiumOwner = null;
     this.koOnTurn = [-9, -9]; this.pkc = 0; this.itemLock = [-9, -9];
     this.pl = [0, 1].map((i) => ({ i, name: names[i], deck: [], hand: [], discard: [], prizes: [], lost: [], active: null, bench: [], turns: 0, sup: false, en: false, ret: false, stad: false, vstar: false, flags: {} }));
@@ -37,9 +38,9 @@ export class Game {
   // ---------------------------------------------------------------- utils
   rnd() { let t = (this.rs = (this.rs + 0x6D2B79F5) | 0); t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
   /** everything needed to continue this game later (taken between actions) */
-  snapshot() { return JSON.parse(JSON.stringify({ rs: this.rs, uidc: this.uidc, pkc: this.pkc, turnNo: this.turnNo, cur: this.cur, stadium: this.stadium, stadiumOwner: this.stadiumOwner, koOnTurn: this.koOnTurn, itemLock: this.itemLock, names: this.names, decks: this.decks, pl: this.pl, maxTurns: this.maxTurns })); }
+  snapshot() { return JSON.parse(JSON.stringify({ rs: this.rs, uidc: this.uidc, pkc: this.pkc, turnNo: this.turnNo, cur: this.cur, stadium: this.stadium, stadiumOwner: this.stadiumOwner, koOnTurn: this.koOnTurn, itemLock: this.itemLock, names: this.names, decks: this.decks, pl: this.pl, maxTurns: this.maxTurns, rules: this.rules })); }
   static restore(s, ctl) {
-    const g = new Game({ decks: s.decks, names: s.names, ctl, seed: 1, maxTurns: s.maxTurns });
+    const g = new Game({ decks: s.decks, names: s.names, ctl, seed: 1, maxTurns: s.maxTurns, rules: s.rules });
     Object.assign(g, { rs: s.rs, uidc: s.uidc, pkc: s.pkc, turnNo: s.turnNo, cur: s.cur, stadium: s.stadium, stadiumOwner: s.stadiumOwner, koOnTurn: s.koOnTurn, itemLock: s.itemLock, pl: JSON.parse(JSON.stringify(s.pl)) });
     return g;
   }
@@ -148,10 +149,11 @@ export class Game {
   }
   atkBonus(src, tgt) {
     const p = this.ownerOf(src), me = this.pl[p], opp = this.pl[1 - p]; let b = 0;
-    if (this.dOf(tgt).suffix === 'ex') { b += me.flags.bb || 0; if (src.tool && D(src.tool.id).name === 'Maximum Belt') b += 50; }
+    if (this.isEx(this.dOf(tgt))) { b += me.flags.bb || 0; if (src.tool && D(src.tool.id).name === 'Maximum Belt') b += 50; }
     if (src.tool && D(src.tool.id).name === 'Defiance Band' && me.prizes.length > opp.prizes.length) b += 30;
     return b;
   }
+  isEx(d) { return d.suffix === 'ex' || (this.rules.vAsEx && ['V', 'VSTAR', 'VMAX'].includes(d.suffix)); }
   safeguarded(src, tgt) {
     const tn = this.dOf(tgt).name, sd = this.dOf(src);
     if (tn === 'Mimikyu' && ['ex', 'V', 'VSTAR', 'VMAX'].includes(sd.suffix)) return true;
@@ -205,9 +207,9 @@ export class Game {
     return this.winner;
   }
   async setup() {
-    for (const p of [0, 1]) { const pl = this.pl[p]; pl.deck = this.shuffle(this.decks[p].map((id) => this.inst(id))); this.draw(p, 7); }
+    for (const p of [0, 1]) { const pl = this.pl[p]; pl.deck = this.shuffle(this.decks[p].map((id) => this.inst(id))); this.draw(p, this.rules.hand); }
     const mull = [0, 0];
-    for (const p of [0, 1]) { const pl = this.pl[p]; while (!pl.hand.some(isBasicPoke)) { mull[p]++; this.log(`${pl.name} has no Basic Pokémon: mulligan.`); pl.deck.push(...pl.hand); pl.hand = []; this.shuffle(pl.deck); this.draw(p, 7); } }
+    for (const p of [0, 1]) { const pl = this.pl[p]; while (!pl.hand.some(isBasicPoke)) { mull[p]++; this.log(`${pl.name} has no Basic Pokémon: mulligan.`); pl.deck.push(...pl.hand); pl.hand = []; this.shuffle(pl.deck); this.draw(p, this.rules.hand); } }
     if (mull[0] !== mull[1]) { const p = mull[0] < mull[1] ? 0 : 1; this.draw(p, Math.abs(mull[0] - mull[1])); this.log(`${this.pl[p].name} draws ${Math.abs(mull[0] - mull[1])} extra card(s) from the mulligan.`); }
     await this.sync();
     const picks = await Promise.all([0, 1].map((p) => this.ask(p, { kind: 'setup', basics: this.pl[p].hand.filter(isBasicPoke).map((c) => ({ key: c.uid, id: c.id })) })));
@@ -216,7 +218,7 @@ export class Game {
       let act = basics.find((c) => c.uid === pk.active) || basics[0];
       pl.hand = pl.hand.filter((c) => c !== act); pl.active = this.newPK(act);
       for (const u of (pk.bench || []).slice(0, 5)) { const c = pl.hand.find((x) => x.uid === u && isBasicPoke(x)); if (c) { pl.hand = pl.hand.filter((x) => x !== c); pl.bench.push(this.newPK(c)); } }
-      for (let i = 0; i < 6; i++) pl.prizes.push(pl.deck.pop());
+      for (let i = 0; i < this.rules.prizes; i++) pl.prizes.push(pl.deck.pop());
     }
     this.ev('setup'); this.log('Prize cards are set. Time to flip a coin!');
     const winner = this.rnd() < 0.5 ? 0 : 1; this.ev('coinfirst', { p: winner }); this.log(`${this.pl[winner].name} wins the coin flip.`);
@@ -231,10 +233,10 @@ export class Game {
     const p = this.cur, me = this.pl[p];
     if (!resume) {
       this.turnNo++; me.turns++;
-      me.sup = me.en = me.ret = me.stad = false; me.flags = {};
+      me.sup = me.en = me.ret = me.stad = false; me.enN = 0; me.flags = {};
       this.inPlay(p).forEach((pk) => { pk.used = {}; });
       this.ev('turn', { p, turnNo: this.turnNo }); this.log(`— ${me.name}'s turn —`);
-      if (!me.deck.length) { this.win(1 - p, 'Deck out'); return; }
+      if (!me.deck.length && !this.rules.noDeckOut) { this.win(1 - p, 'Deck out'); return; }
       this.draw(p, 1); await this.sync();
     } else { this.ev('turn', { p, turnNo: this.turnNo }); this.log('— Game resumed —'); await this.sync(); }
     for (let n = 0; n < 80 && this.winner === null; n++) {
@@ -293,7 +295,7 @@ export class Game {
     return cost;
   }
   legal(p) {
-    const me = this.pl[p], opp = this.pl[1 - p], L = []; const firstTurnEver = this.turnNo === 1;
+    const me = this.pl[p], opp = this.pl[1 - p], L = []; const firstTurnEver = this.turnNo === 1 && !this.rules.firstTurn;
     const targets = this.inPlay(p);
     for (const c of me.hand) {
       const d = D(c.id);
@@ -337,7 +339,7 @@ export class Game {
       case 'bench': this.removeFrom(me.hand, card); this.benchCard(p, card); this.log(`${me.name} benches ${D(card.id).name}.`); break;
       case 'evolve': await this.evolve(p, card, pk); break;
       case 'attach': {
-        this.removeFrom(me.hand, card); me.en = true; await this.attachEnergy(p, card, pk); this.log(`${me.name} attaches ${D(card.id).name} to ${this.dOf(pk).name}.`);
+        this.removeFrom(me.hand, card); me.enN = (me.enN || 0) + 1; me.en = me.enN >= this.rules.energyPerTurn; await this.attachEnergy(p, card, pk); this.log(`${me.name} attaches ${D(card.id).name} to ${this.dOf(pk).name}.`);
         if (D(card.id).name === 'Jet Energy' && me.active !== pk) { this.switchActive(p, pk); this.log('Jet Energy swaps it into the Active Spot!'); }
         break; }
       case 'tool': this.removeFrom(me.hand, card); pk.tool = card; this.ev('tool', { p, pid: pk.pid, uid: card.uid, id: card.id }); this.log(`${me.name} attaches ${D(card.id).name}.`); break;

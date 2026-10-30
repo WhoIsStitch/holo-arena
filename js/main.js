@@ -27,11 +27,42 @@ const covers = decks.map((d) => cards[d.cover].img);
 startBackdrop($('#bgfx'), covers);
 decks.forEach((d) => {
   const el = document.createElement('div'); el.className = 'deck'; el.dataset.id = d.id; el.style.setProperty('--c1', d.colors[0]); el.style.setProperty('--c2', d.colors[1]);
-  el.innerHTML = `<div class="pack"><span class="tick">✔</span><img src="${cards[d.cover].img}" alt=""><div class="ribbon">${d.name}</div></div><small>${d.tag}</small>`;
+  el.innerHTML = `<div class="pack"><span class="tick">✔</span><button class="viewdeck">Cards</button><img src="${cards[d.cover].img}" alt=""><div class="ribbon">${d.name}</div></div><small>${d.tag}</small>`;
+  el.querySelector('.viewdeck').onclick = (ev) => { ev.stopPropagation(); audio.sfx('click'); viewDeck(d); };
   el.onclick = () => { deckId = d.id; store.set('deck', d.id); sync(); audio.sfx('click'); el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
   $('#decks').append(el);
 });
 const sync = () => document.querySelectorAll('.deck').forEach((e) => e.classList.toggle('sel', e.dataset.id === deckId)); sync();
+const DEFAULT_RULES = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1 };
+const getRules = () => ({ ...DEFAULT_RULES, ...(JSON.parse(store.get('rules', '{}') || '{}')) });
+function rulesText(r) {
+  const out = []; if (r.vAsEx) out.push('V counts as ex'); if (r.noDeckOut) out.push("no deck-out loss"); if (r.firstTurn) out.push('attack/Supporter allowed turn 1');
+  if (r.prizes !== 6) out.push(`${r.prizes} Prizes`); if (r.hand !== 7) out.push(`${r.hand}-card hand`); if (r.energyPerTurn !== 1) out.push(`${r.energyPerTurn} Energy/turn`); return out.join(' · ');
+}
+function showRules() {
+  const r = getRules(), save = () => store.set('rules', JSON.stringify(r));
+  const m = ui.modal(`<div class="dlg rules"><h3>House rules</h3><div class="sub">Applies to games you start (Practice, or a room you host). Friends see them when the game begins.</div><div class="rows"></div><div class="foot2"><button class="btn" id="rReset">Reset</button><button class="btn ok" id="rDone">Done</button></div></div>`);
+  const rows = m.querySelector('.rows');
+  const tog = (key, label, hint) => { const row = document.createElement('div'); row.className = 'rrow'; row.innerHTML = `<div><b>${label}</b><small>${hint}</small></div><button class="sw${r[key] ? ' on' : ''}" aria-label="${label}"></button>`; row.querySelector('.sw').onclick = (ev) => { r[key] = !r[key]; ev.currentTarget.classList.toggle('on', r[key]); save(); audio.sfx('click'); }; rows.append(row); };
+  const num = (key, label, hint, lo, hi) => { const row = document.createElement('div'); row.className = 'rrow'; row.innerHTML = `<div><b>${label}</b><small>${hint}</small></div><div class="step"><button>−</button><span>${r[key]}</span><button>+</button></div>`; const [a, , b] = row.querySelectorAll('.step > *'); const span = row.querySelector('span'); a.onclick = () => { r[key] = Math.max(lo, r[key] - 1); span.textContent = r[key]; save(); }; b.onclick = () => { r[key] = Math.min(hi, r[key] + 1); span.textContent = r[key]; save(); }; rows.append(row); };
+  tog('vAsEx', 'V counts as ex', 'Cards that affect Pokémon ex (Black Belt\'s Training, Maximum Belt…) also affect V, VSTAR and VMAX');
+  tog('noDeckOut', "Don't lose when the deck is empty", 'You just skip your draw instead of losing the game');
+  tog('firstTurn', 'No first-turn limits', 'The first player may attack and play a Supporter on turn 1');
+  num('prizes', 'Prize cards', 'How many each player sets aside (fewer = shorter game)', 1, 6);
+  num('hand', 'Starting hand', 'Cards drawn at the start', 5, 10);
+  num('energyPerTurn', 'Energy attachments per turn', 'From your hand each turn', 1, 3);
+  m.querySelector('#rDone').onclick = () => ui.closeModal();
+  m.querySelector('#rReset').onclick = () => { store.set('rules', '{}'); ui.closeModal(); showRules(); };
+}
+function viewDeck(d) {
+  const counts = d.list.map(([id, n]) => ({ id, n, c: cards[id] })); const kind = (x) => (x.c.cat === 'Pokemon' ? 0 : x.c.cat === 'Trainer' ? 1 : 2);
+  counts.sort((a, b) => kind(a) - kind(b) || a.c.name.localeCompare(b.c.name));
+  const tot = [0, 0, 0]; counts.forEach((x) => (tot[kind(x)] += x.n));
+  const m = ui.modal(`<div class="dlg"><h3>${d.name}</h3><div class="sub">${d.count} cards · ${tot[0]} Pokémon · ${tot[1]} Trainers · ${tot[2]} Energy — tap a card to look closer</div><div class="grid"></div><div class="foot2"><button class="btn">Close</button></div></div>`);
+  counts.forEach((x) => { const n = document.createElement('div'); n.className = 'opt'; n.innerHTML = `<img src="${x.c.img}" alt=""><small><b>×${x.n}</b> ${x.c.name}</small>`; n.onclick = () => ui.sheet(x.id, [], null, n.querySelector('img')); m.querySelector('.grid').append(n); });
+  m.querySelector('.btn').onclick = () => ui.closeModal();
+}
+document.getElementById('btnRules').onclick = () => { audio.sfx('click'); showRules(); };
 const myName = () => { const n = ($('#name').value || '').trim().slice(0, 16) || 'Trainer'; store.set('name', $('#name').value.trim()); return n; };
 const preload = (list) => list.forEach(([id]) => { const i = new Image(); i.src = cards[id].img; });
 audio.music('menu');
@@ -80,7 +111,7 @@ function startPractice(demo = params.get('demo') === '1', saved = null) {
   else { me = deckById(deckId); const others = decks.filter((d) => d.id !== deckId); foe = others[Math.floor(Math.random() * others.length)] || me; names = [myName(), `Bot · ${foe.name.split(' — ')[0]}`]; }
   s.names = names; s.deckIds = [me.id, foe.id]; preload(me.list); preload(foe.list); enterGame();
   const ctl = [demo ? { update: humanCtl.update, ask: (r, v) => new Bot({ delay: 500 }).ask(r, v) } : humanCtl, new Bot({ delay: 650 })];
-  const game = saved ? Game.restore(saved.snap, ctl) : new Game({ decks: [expandDeck(me.list), expandDeck(foe.list)], names, ctl, seed: Date.now() });
+  const game = saved ? Game.restore(saved.snap, ctl) : new Game({ decks: [expandDeck(me.list), expandDeck(foe.list)], names, ctl, seed: Date.now(), rules: getRules() });
   ui.onAgain = () => startPractice(false); runGame(s, game, !!saved);
 }
 $('#btnBot').onclick = () => { audio.sfx('click'); startPractice(); };
@@ -93,10 +124,10 @@ function hostRoom(saved = null) {
   const maybeRematch = () => { if (s.rematch.me && s.rematch.guest && s.link) { s.game = null; startOnline(); } };
   const startOnline = () => {
     const mine = deckById(s.deckIds[0]), theirs = s.guestDeck || deckById(s.deckIds[1]) || decks[0]; preload(theirs.list); s.rematch = { me: false, guest: false };
-    enterGame(); s.link.send({ t: 'start', names: s.names, you: 1, deck: mine.id }); s.remote = new RemoteController(s.link); netbar('');
+    enterGame(); s.link.send({ t: 'start', names: s.names, you: 1, deck: mine.id, rules: getRules() }); s.remote = new RemoteController(s.link); netbar('');
     const ctl = [humanCtl, s.remote]; let p;
     if (s.resumeSnap) { const g = Game.restore(s.resumeSnap, ctl); s.resumeSnap = null; p = runGame(s, g, true); }
-    else p = runGame(s, new Game({ decks: [expandDeck(mine.list), expandDeck(theirs.list)], names: s.names, ctl, seed: Date.now() }), false);
+    else p = runGame(s, new Game({ decks: [expandDeck(mine.list), expandDeck(theirs.list)], names: s.names, ctl, seed: Date.now(), rules: getRules() }), false);
     p.then(() => s.link && s.link.send({ t: 'over' }));
   };
   ui.onAgain = () => { s.rematch.me = true; if (!s.link) return toast('Your friend left the room'); $('#again').textContent = 'Waiting for friend…'; $('#again').disabled = true; s.link.send({ t: 'rematch' }); maybeRematch(); };
@@ -146,7 +177,7 @@ async function joinGame(code, info, { silent = false } = {}) {
     s.peer = peer;
     const link = wrap(conn, {
       onMsg: (m) => {
-        if (m.t === 'start') { s.started = true; netbar(''); jset('guest', { code, ...info, t: Date.now() }); enterGame(); ui.onAgain = () => { $('#again').textContent = 'Waiting for friend…'; $('#again').disabled = true; s.link.send({ t: 'rematch' }); }; }
+        if (m.t === 'start') { if (m.rules && !m.resumed) { const t = rulesText(m.rules); if (t) toast('House rules: ' + t); } s.started = true; netbar(''); jset('guest', { code, ...info, t: Date.now() }); enterGame(); ui.onAgain = () => { $('#again').textContent = 'Waiting for friend…'; $('#again').disabled = true; s.link.send({ t: 'rematch' }); }; }
         else if (m.t === 'update') ui.enqueue(m.view, m.events);
         else if (m.t === 'ask') ui.prompt(m.req, m.view).then((answer) => s.link && s.link.send({ t: 'answer', rid: m.rid, answer }));
         else if (m.t === 'full') { toast('That room is already taken'); leaveToMenu(); }
