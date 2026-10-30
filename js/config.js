@@ -9,4 +9,4 @@ export const ICE_SERVERS = [
   { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' },
 ];
 export const ROOM_PREFIX = 'holoarena-';
-export const REPO_URL = '';   // filled in when published
+export const REPO_URL = 'https://github.com/WhoIsStitch/holo-arena';
