@@ -2023,5 +2023,26 @@
   "suffix": null,
   "set": "Power Keepers",
   "img": "https://assets.tcgdex.net/en/ex/ex16/88/high.webp"
+ },
+ "xy6-97": {
+  "id": "xy6-97",
+  "name": "Double Dragon Energy",
+  "cat": "Energy",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Special",
+  "effect": "This card can only be attached to Dragon Pokémon. This card provides every type of Energy, but provides only 2 Energy at a time, only while this card is attached to a Dragon Pokémon.\n\n(If this card is attached to anything other than a Dragon Pokémon, discard this card.)",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Roaring Skies",
+  "img": "https://assets.tcgdex.net/en/xy/xy6/97/high.webp"
  }
 }

@@ -118,8 +118,8 @@
  },
  {
   "id": "haxorus",
-  "name": "Haxorus \u2014 Bring Down the Axe",
-  "tag": "Rare Candy into Haxorus. Axe Blast knocks out any Basic Pok\u00e9mon.",
+  "name": "Haxorus — Bring Down the Axe",
+  "tag": "Rare Candy into Haxorus. Axe Blast knocks out any Basic Pokémon.",
   "colors": [
    "#2fd1a5",
    "#c9a227"
@@ -188,7 +188,7 @@
    ],
    [
     "sv02-185",
-    3
+    2
    ],
    [
     "sv03-186",
@@ -237,6 +237,10 @@
    [
     "sv02-192",
     3
+   ],
+   [
+    "xy6-97",
+    1
    ]
   ],
   "count": 60
@@ -321,7 +325,7 @@
  {
   "id": "miraidon",
   "name": "Miraidon ex",
-  "tag": "Flood the Bench with Lightning Pok\u00e9mon and hit for 220.",
+  "tag": "Flood the Bench with Lightning Pokémon and hit for 220.",
   "colors": [
    "#ffe14d",
    "#2fb7ff"

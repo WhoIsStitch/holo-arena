@@ -164,6 +164,7 @@ export class Game {
     const o = this.ownerOf(pk), d = this.dOf(pk); const pool = [];
     for (const en of pk.energy) {
       if (D(en.id).name === 'Reversal Energy') { if (this.pl[o].prizes.length > this.pl[1 - o].prizes.length && d.stage !== 'Basic' && !d.suffix) pool.push('*', '*', '*'); else pool.push('Colorless'); }
+      else if (D(en.id).name === 'Double Dragon Energy') pool.push(...((d.types || []).includes('Dragon') ? ['*', '*'] : []));
       else pool.push(...provides(en));
     }
     return pool;
@@ -303,7 +304,7 @@ export class Game {
         if (d.stage === 'Basic') { if (me.bench.length < 5) L.push({ t: 'bench', card: c.uid, label: `Bench ${d.name}` }); }
         else if (d.evolveFrom && me.turns > 1) for (const pk of targets) if (this.dOf(pk).name === d.evolveFrom && pk.since < this.turnNo && pk.evolvedTurn !== this.turnNo) L.push({ t: 'evolve', card: c.uid, target: pk.pid, label: `Evolve ${this.dOf(pk).name}` });
       } else if (d.cat === 'Energy') {
-        if (!me.en) for (const pk of targets) L.push({ t: 'attach', card: c.uid, target: pk.pid, label: `Attach to ${this.dOf(pk).name}` });
+        if (!me.en) for (const pk of targets) if (d.name !== 'Double Dragon Energy' || (this.dOf(pk).types || []).includes('Dragon')) L.push({ t: 'attach', card: c.uid, target: pk.pid, label: `Attach to ${this.dOf(pk).name}` });
       } else if (d.trainerType === 'Tool') {
         for (const pk of targets) if (!pk.tool) L.push({ t: 'tool', card: c.uid, target: pk.pid, label: `Attach to ${this.dOf(pk).name}` });
       } else {
