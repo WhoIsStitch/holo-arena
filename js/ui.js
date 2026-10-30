@@ -6,16 +6,24 @@ import { FX, TYPE_COLOR } from './fx.js';
 const $ = (s, r = document) => r.querySelector(s);
 const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const CW = 132, CH = 185;
-const grid2 = (xs, ys) => Array.from({ length: 6 }, (_, k) => [xs[k % 2], ys[Math.floor(k / 2)]]);
-const gridP = (cy) => Array.from({ length: 6 }, (_, k) => [620 + (k % 3) * 90, cy - 48 + Math.floor(k / 3) * 96]);
-function makeLayout(mode) {
-  if (mode === 'land') return { mode, W: 1600, H: 1040, bx: (i) => 800 + (i - 2) * 168, stadium: [360, 490], handMid: 800, handW: 980, tilt: 20, pos: {
-    me: { active: [800, 640], benchY: 850, deck: [1480, 860], discard: [1480, 690], lost: [1300, 775], prizes: grid2([105, 185], [640, 750, 860]), prizeBox: [145, 750, 170, 350], handY: 962 },
-    op: { active: [800, 330], benchY: 128, deck: [120, 180], discard: [120, 350], lost: [300, 265], prizes: grid2([1495, 1415], [400, 290, 180]), prizeBox: [1455, 290, 170, 350], handY: -30 } } };
-  return { mode, W: 900, H: 1600, bx: (i) => 450 + (i - 2) * 168, stadium: [450, 720], handMid: 450, handW: 830, tilt: 9, pos: {
-    me: { active: [450, 1085], benchY: 1300, deck: [95, 885], discard: [245, 885], lost: [405, 885], prizes: gridP(885), prizeBox: [710, 885, 290, 230], handY: 1500 },
-    op: { active: [450, 350], benchY: 138, deck: [95, 555], discard: [245, 555], lost: [405, 555], prizes: gridP(555), prizeBox: [710, 555, 290, 230], handY: -28 } } };
+function makeLayout(W, H) {
+  const port = H > W * 1.05, m = 10, cx = W / 2; let ch, cw, pos, bx, stadium, gap;
+  if (!port) {
+    ch = Math.min(H * 0.175, (W / 9.0) / 0.716); cw = ch * 0.716; gap = cw * 1.14;
+    const R = [0.105, 0.30, 0.50, 0.70, 0.893].map((f) => f * H), c1 = gap * 3.2;
+    pos = {
+      me: { active: [cx, R[2]], benchY: R[3], deck: [cx + c1, R[2]], discard: [cx + c1, R[3]], lost: [cx - c1, R[3]], prizeAt: [cx - c1, R[2]], handY: R[4] },
+      op: { active: [cx, R[1]], benchY: R[0], deck: [cx - c1, R[1]], discard: [cx - c1, R[0]], lost: [cx + c1, R[0]], prizeAt: [cx + c1, R[1]], handY: -ch * 0.3 } };
+    stadium = [cx + c1, (R[1] + R[2]) / 2];
+  } else {
+    cw = Math.min((W - 2 * m) / 5.45, H * 0.122 * 0.716); ch = cw / 0.716; gap = Math.max(cw * 1.04, (W - 2 * m - cw) / 4);
+    const R = [0.118, 0.238, 0.356, 0.466, 0.58, 0.70, 0.815, 0.927].map((f) => f * H), p1 = m + cw * 0.55, p2 = p1 + cw * 1.14, p3 = p2 + cw * 1.14, pz = W - m - cw * 0.55;
+    pos = {
+      me: { active: [cx, R[4]], benchY: R[5], deck: [p1, R[6]], discard: [p2, R[6]], lost: [p3, R[6]], prizeAt: [pz, R[6]], handY: R[7] },
+      op: { active: [cx, R[2]], benchY: R[1], deck: [p1, R[0]], discard: [p2, R[0]], lost: [p3, R[0]], prizeAt: [pz, R[0]], handY: -ch * 0.3 } };
+    stadium = [cx, R[3]];
+  }
+  return { W, H, port, cw, ch, hw: port ? W - 20 : W - 380, bx: (i) => cx + (i - 2) * gap, stadium, handMid: cx, pos };
 }
 const STATUS_ICON = { poisoned: '☠️', burned: '🔥', asleep: '💤', paralyzed: '⚡', confused: '💫' };
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -30,49 +38,49 @@ export class BoardUI {
     this.bind();
   }
   fit() {
-    const mode = innerHeight > innerWidth * 1.05 ? 'port' : 'land';
-    if (mode !== this.mode) { this.mode = mode; this.L = makeLayout(mode); const tw = $('#tablewrap'); tw.style.width = this.L.W + 'px'; tw.style.height = this.L.H + 'px'; this.buildTable(); if (this.view) this.apply(this.view); }
-    const L = this.L, s = Math.min(innerWidth / (L.W + 30), innerHeight / (L.H * 1.07));
-    $('#tablewrap').style.setProperty('--s', s.toFixed(3)); $('#table').style.setProperty('--tilt', L.tilt + 'deg');
+    const L = makeLayout(innerWidth, innerHeight); this.L = L; this.cw = L.cw; this.ch = L.ch;
+    const st = document.documentElement.style; st.setProperty('--cw', L.cw.toFixed(1) + 'px'); st.setProperty('--ch', L.ch.toFixed(1) + 'px'); st.setProperty('--fs', (L.ch * 0.085).toFixed(1) + 'px');
+    const eb = $('#endTurn'); if (L.port) { eb.style.top = (L.stadium[1] - 22) + 'px'; eb.style.bottom = 'auto'; } else { eb.style.top = 'auto'; eb.style.bottom = ''; }
+    this.buildTable(); if (this.view) this.apply(this.view);
   }
 
   // ------------------------------------------------------------------ static table
   buildTable() {
-    const t = this.table; this.static.forEach((x) => x.remove()); this.static = []; const L = this.L;
-    const add = (e) => { t.prepend(e); this.static.push(e); return e; };
-    add(mk('div', 'ring')); this.zones = {};
-    const zone = (key, cx, cy, w, h, label, cls = '') => { const z = add(mk('div', 'zone ' + cls, `<span>${label}</span><span class="cnt"></span>`)); z.style.cssText = `left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px`; this.zones[key] = z; return z; };
+    const t = this.table; this.static.forEach((x) => x.remove()); this.static = []; const L = this.L, cw = this.cw, ch = this.ch;
+    const add = (e) => { t.prepend(e); this.static.push(e); return e; }; this.zones = {};
+    const zone = (key, c, w, h, label, cls = '') => { const z = add(mk('div', 'zone ' + cls, `<span>${label}</span><span class="cnt"></span>`)); z.style.cssText = `left:${c[0] - w / 2}px;top:${c[1] - h / 2}px;width:${w}px;height:${h}px`; this.zones[key] = z; return z; };
     for (const side of ['me', 'op']) {
       const P = L.pos[side];
-      zone(side + 'Active', P.active[0], P.active[1], CW + 28, CH + 28, 'Active', 'active');
-      for (let i = 0; i < 5; i++) zone(side + 'Bench' + i, L.bx(i), P.benchY, CW + 14, CH + 14, i === 0 ? 'Bench' : '');
-      zone(side + 'Deck', P.deck[0], P.deck[1], CW + 12, CH + 12, 'Deck');
-      for (let i = 0; i < 4; i++) { const pi = add(mk('div', 'pile')); pi.style.cssText = `left:${P.deck[0] - CW / 2 - i * 1.5}px;top:${P.deck[1] - CH / 2 - i * 1.8}px;transform:translateZ(${i}px)`; pi.append(mk('i')); }
-      zone(side + 'Discard', P.discard[0], P.discard[1], CW + 12, CH + 12, 'Discard').classList.add('mine');
-      zone(side + 'Lost', P.lost[0], P.lost[1], CW + 12, CH + 12, 'Lost Zone', 'lost').classList.add('mine');
-      zone(side + 'Prize', P.prizeBox[0], P.prizeBox[1], P.prizeBox[2], P.prizeBox[3], 'Prizes');
+      zone(side + 'Active', P.active, cw + 8, ch + 8, 'Active', 'active');
+      for (let i = 0; i < 5; i++) zone(side + 'Bench' + i, [L.bx(i), P.benchY], cw + 6, ch + 6, i === 0 ? 'Bench' : '');
+      zone(side + 'Deck', P.deck, cw + 4, ch + 4, 'Deck');
+      for (let i = 0; i < 4; i++) { const pi = add(mk('div', 'pile')); pi.style.cssText = `left:${P.deck[0] - cw / 2 - i * 1.2}px;top:${P.deck[1] - ch / 2 - i * 1.5}px`; pi.append(mk('i')); }
+      zone(side + 'Discard', P.discard, cw + 4, ch + 4, 'Discard').classList.add('mine');
+      zone(side + 'Lost', P.lost, cw + 4, ch + 4, 'Lost Zone', 'lost').classList.add('mine');
+      zone(side + 'Prize', P.prizeAt, cw * 0.7 + 10, ch * 0.7 + 10, 'Prizes');
       this.zones[side + 'Discard'].onclick = () => this.viewPile(side === 'me' ? this.view.me : 1 - this.view.me, 'discard');
       this.zones[side + 'Lost'].onclick = () => this.viewPile(side === 'me' ? this.view.me : 1 - this.view.me, 'lost');
     }
-    zone('stadium', L.stadium[0], L.stadium[1], CW + 20, CH * 0.78 + 20, 'Stadium');
+    zone('stadium', L.stadium, cw * 0.85 + 8, ch * 0.85 + 8, 'Stadium');
   }
   sideOf(i) { return i === this.view.me ? 'me' : 'op'; }
 
   // ------------------------------------------------------------------ layout
   layout(v) {
-    const out = []; const me = v.me;
+    const out = [], me = v.me, L = this.L, cw = this.cw;
     for (const i of [0, 1]) {
-      const side = i === me ? 'me' : 'op', P = this.L.pos[side], pl = v.pl[i];
-      const n = pl.hand.length, step = Math.min(side === 'me' ? 112 : 46, this.L.handW / Math.max(n, 1)), hm = this.L.handMid;
+      const side = i === me ? 'me' : 'op', P = L.pos[side], pl = v.pl[i];
+      const n = pl.hand.length, hm = L.handMid;
+      const step = side === 'me' ? Math.min(cw * 1.1, n > 1 ? (L.hw - cw) / (n - 1) : 999) : Math.min(cw * 0.42, n > 1 ? (L.W * 0.5) / (n - 1) : 999);
       pl.hand.forEach((c, k) => { const off = k - (n - 1) / 2;
-        out.push({ uid: c.uid, id: c.id || null, x: hm + off * step, y: P.handY + (side === 'me' ? off * off * 1.1 : off * off * -0.8), s: side === 'me' ? 1.05 : 0.6, rot: side === 'me' ? off * 2.2 : -off * 3, z: 30 + k * 0.6, down: !c.id, zone: 'hand', side, owner: i }); });
-      const pkSpec = (pk, x, y, s, z, zone) => out.push({ uid: pk.uid, id: pk.id, x, y, s, rot: 0, z, down: false, zone, side, pk, owner: i });
-      if (pl.active) pkSpec(pl.active, ...P.active, 1.08, 14, 'active');
-      pl.bench.forEach((pk, k) => pkSpec(pk, this.L.bx(k), P.benchY, 0.94, 12, 'bench'));
-      const d = pl.discard; if (d.length) { const c = d[d.length - 1]; out.push({ uid: c.uid, id: c.id, x: P.discard[0], y: P.discard[1], s: 0.95, rot: (c.uid % 7) - 3, z: 4, down: false, zone: 'discard', side, owner: i }); }
-      pl.prizes.forEach((u, k) => out.push({ uid: u, id: null, x: P.prizes[k][0], y: P.prizes[k][1], s: 0.55, rot: 0, z: 2, down: true, zone: 'prize', side, owner: i }));
+        out.push({ uid: c.uid, id: c.id || null, x: hm + off * step, y: P.handY, s: side === 'me' ? 1 : 0.56, rot: 0, z: side === 'me' ? 100 + k : 2, down: !c.id, zone: 'hand', side, owner: i }); });
+      const pkSpec = (pk, x, y, z, zone) => out.push({ uid: pk.uid, id: pk.id, x, y, s: 1, rot: 0, z, down: false, zone, side, pk, owner: i });
+      if (pl.active) pkSpec(pl.active, P.active[0], P.active[1], 20, 'active');
+      pl.bench.forEach((pk, k) => pkSpec(pk, L.bx(k), P.benchY, 18, 'bench'));
+      const d = pl.discard; if (d.length) { const c = d[d.length - 1]; out.push({ uid: c.uid, id: c.id, x: P.discard[0], y: P.discard[1], s: 1, rot: (c.uid % 5) - 2, z: 6, down: false, zone: 'discard', side, owner: i }); }
+      pl.prizes.forEach((u, k) => out.push({ uid: u, id: null, x: P.prizeAt[0] + k * 1.8, y: P.prizeAt[1] - k * 1.8, s: 0.7, rot: 0, z: 3, down: true, zone: 'prize', side, owner: i }));
     }
-    if (v.stadium) out.push({ uid: v.stadium.uid, id: v.stadium.id, x: this.L.stadium[0], y: this.L.stadium[1], s: 0.78, rot: 0, z: 6, down: false, zone: 'stadium', side: 'me', owner: v.stadium.owner });
+    if (v.stadium) out.push({ uid: v.stadium.uid, id: v.stadium.id, x: L.stadium[0], y: L.stadium[1], s: 0.85, rot: 0, z: 8, down: false, zone: 'stadium', side: 'me', owner: v.stadium.owner });
     return out;
   }
   originOf(sp) {
@@ -83,11 +91,11 @@ export class BoardUI {
     const e = mk('div', 'card snap', `<div class="inner"><div class="face front"><img draggable="false" alt=""><div class="holo"></div><div class="spark"></div><div class="glare"></div></div><div class="face back"></div></div><div class="ov"></div>`);
     e.dataset.uid = sp.uid; const c = { el: e, img: $('img', e), ov: $('.ov', e), sig: '', id: null, spec: sp };
     this.table.append(e); this.cards.set(sp.uid, c);
-    const o = this.originOf(sp); this.setT(e, { ...sp, ...o, z: 400 }); if (o.down) e.classList.add('down');
+    const o = this.originOf(sp); this.setT(e, { ...sp, ...o }); if (o.down) e.classList.add('down');
     void e.offsetWidth; requestAnimationFrame(() => e.classList.remove('snap'));
     this.wire(c); return c;
   }
-  setT(e, sp) { e.style.transform = `translate3d(${sp.x - CW / 2}px, ${sp.y - CH / 2}px, ${sp.z || 0}px) rotate(${sp.rot || 0}deg) scale(${sp.s})`; }
+  setT(e, sp) { e.style.transform = `translate(${sp.x - this.cw / 2}px, ${sp.y - this.ch / 2}px) rotate(${sp.rot || 0}deg) scale(${sp.s})`; }
   place(c, sp) {
     const e = c.el; c.spec = sp; if (sp.id && c.id !== sp.id) { c.id = sp.id; c.img.src = D(sp.id).img; const d = D(sp.id); e.classList.toggle('foil', !!(d.suffix || /Holo|Rare|ACE|Radiant|Double|Ultra/.test(d.rarity || '') && d.cat === 'Pokemon')); }
     e.classList.toggle('down', !!sp.down); e.classList.toggle('hand', sp.zone === 'hand'); e.classList.toggle('mine', sp.side === 'me'); e.classList.toggle('pk', !!sp.pk);
@@ -108,7 +116,7 @@ export class BoardUI {
     if (lost) { dest = P.lost; s = 0.1; e.style.transition = 'transform .8s cubic-bezier(.6,0,.6,1), opacity .8s .1s'; e.classList.add('snap-keep'); }
     else if (disc) { dest = P.discard; s = 0.95; }
     else { for (const i of [0, 1]) for (const pk of [v.pl[i].active, ...v.pl[i].bench]) if (pk && (pk.energy.some((x) => x.uid === uid) || (pk.tool && pk.tool.uid === uid))) { const t = this.pkUidPos(pk); if (t) { dest = t; s = 0.3; } } }
-    e.style.zIndex = 900; e.style.transform = `translate3d(${dest[0] - CW / 2}px, ${dest[1] - CH / 2}px, 0) rotate(${lost ? 540 : 0}deg) scale(${s})`; e.style.opacity = lost ? '0' : '0.0';
+    e.style.zIndex = 900; e.style.transform = `translate(${dest[0] - this.cw / 2}px, ${dest[1] - this.ch / 2}px) rotate(${lost ? 540 : 0}deg) scale(${s})`; e.style.opacity = lost ? '0' : '0.0';
     if (disc) e.style.opacity = '0'; setTimeout(() => e.remove(), delay + 200);
   }
   pkUidPos(pk) { for (const sp of this.lastLayout || []) if (sp.pk && sp.pk.pid === pk.pid) return [sp.x, sp.y]; return null; }
@@ -127,13 +135,12 @@ export class BoardUI {
     const tp = $('#turnPill'); const mine = v.cur === v.me; tp.textContent = v.turnNo ? (mine ? 'Your turn' : "Opponent's turn") : 'Setting up'; tp.className = v.turnNo ? (mine ? 'me' : 'opp') : '';
     this.refreshInteractive();
   }
-  who(v, i) { const p = v.pl[i]; return `<span class="dot"></span>${esc(p.name)} <small>Prizes ${p.prizeN} · Hand ${p.handN} · Deck ${p.deckN} · Lost ${p.lost.length}</small>`; }
+  who(v, i) { const p = v.pl[i]; return `<span class="dot"></span>${esc(p.name)} <small>Prizes ${p.prizeN} · Hand ${p.handN}</small>`; }
 
   // ------------------------------------------------------------------ pointer & tilt
   wire(c) {
     const e = c.el;
-    e.addEventListener('pointermove', (ev) => { if (this.drag) return; const r = e.getBoundingClientRect(); const px = (ev.clientX - r.left) / r.width * 100, py = (ev.clientY - r.top) / r.height * 100; e.style.setProperty('--mx', px.toFixed(1)); e.style.setProperty('--my', py.toFixed(1)); e.style.setProperty('--rx', ((50 - py) * 0.3).toFixed(1) + 'deg'); e.style.setProperty('--ry', ((px - 50) * 0.3).toFixed(1) + 'deg'); e.classList.add('live'); e.classList.remove('idle'); });
-    e.addEventListener('pointerleave', () => { e.style.setProperty('--rx', '0deg'); e.style.setProperty('--ry', '0deg'); e.classList.remove('live'); e.classList.toggle('idle', !!c.spec.pk); e.style.removeProperty('--mx'); e.style.removeProperty('--my'); this.inspect(null); });
+    e.addEventListener('pointerleave', () => this.inspect(null));
     e.addEventListener('pointerenter', () => { if (c.id && !e.classList.contains('down')) this.inspect(c.id, c.spec); });
     e.addEventListener('pointerdown', (ev) => this.downCard(ev, c));
   }
@@ -156,7 +163,7 @@ export class BoardUI {
     const root = $('#float'); const d = D(id);
     const live = pk ? `<div class="live"><div class="hp ${(pk.hp - pk.dmg) / pk.hp < 0.3 ? 'low' : (pk.hp - pk.dmg) / pk.hp < 0.6 ? 'mid' : ''}"><i style="width:${Math.max(0, (pk.hp - pk.dmg) / pk.hp * 100)}%"></i><b>${pk.hp - pk.dmg}/${pk.hp} HP</b></div><div class="orbs">${pk.energy.map((x) => orbHTML(D(x.id).energyType === 'Special' ? 'Colorless' : D(x.id).name.replace(' Energy', ''))).join('') || '<small>No Energy attached</small>'}</div>${pk.cond.length ? `<div class="conds">${pk.cond.map((k) => STATUS_ICON[k] + ' ' + k).join(' · ')}</div>` : ''}</div>` : '';
     const foil = d.suffix || /Holo|Rare|ACE|Radiant|Double|Ultra/.test(d.rarity || '') && d.cat === 'Pokemon';
-    root.innerHTML = `<div class="fback"></div><div class="fwrap"><div class="fstage"><div class="fcard card ${foil ? 'foil' : ''}"><div class="inner"><div class="face front"><img src="${d.img}" alt=""><div class="holo"></div><div class="spark"></div><div class="glare"></div></div></div></div><div class="fshadow"></div></div><div class="fpanel"><button class="x" aria-label="Close">✕</button><div class="fname">${esc(d.name)}</div><div class="fmeta">${d.cat === 'Pokemon' ? `${d.stage} · ${(d.types || []).join('/')} · ${d.hp} HP` : d.trainerType || d.cat}</div>${live}<div class="facts"></div><div class="finfo">${this.cardText(id)}</div></div></div>`;
+    root.innerHTML = `<div class="fback"></div><div class="fwrap"><div class="fstage"><div class="fcard card ${foil ? 'foil' : ''} ${d.suffix ? 'rule' : ''}"><div class="inner"><div class="face front"><img src="${d.img}" alt=""><div class="holo"></div><div class="spark"></div><div class="glare"></div></div></div></div><div class="fshadow"></div></div><div class="fpanel"><button class="x" aria-label="Close">✕</button><div class="fname">${esc(d.name)}</div><div class="fmeta">${d.cat === 'Pokemon' ? `${d.stage} · ${(d.types || []).join('/')} · ${d.hp} HP` : d.trainerType || d.cat}</div>${live}<div class="facts"></div><div class="finfo">${this.cardText(id)}</div></div></div>`;
     const facts = $('.facts', root); this.renderItems(items.length ? items : [], facts, true);
     if (items.length) facts.append(mk('hr'));
     const cl = mk('button', 'ghost', items.length ? 'Put it back' : 'Close'); cl.onclick = () => this.closeFloat(); facts.append(cl);
@@ -180,7 +187,8 @@ export class BoardUI {
   refreshInteractive() {
     const v = this.view, main = this.req && this.req.kind === 'main'; this.legalIdx = null;
     document.querySelectorAll('.card.playable,.card.canact,.card.targetable').forEach((x) => x.classList.remove('playable', 'canact', 'targetable'));
-    this.table.classList.toggle('myturn', !!main); $('#endTurn').disabled = !main; $('#endTurn').classList.toggle('ready', !!main && !this.req.legal.some((a) => !['end', 'retreat'].includes(a.t)));
+    this.table.classList.toggle('myturn', !!main); $('#endTurn').disabled = !main;
+    { const v0 = this.view, eb = $('#endTurn'); eb.textContent = main ? 'End turn' : !v0 || !v0.turnNo ? 'Setting up…' : v0.winner !== null ? 'Game over' : v0.cur !== v0.me ? "Opponent's turn" : 'Wait…'; eb.classList.toggle('wait', !main); } $('#endTurn').classList.toggle('ready', !!main && !this.req.legal.some((a) => !['end', 'retreat'].includes(a.t)));
     if (!main) { this.hint(v && v.cur !== v.me && !v.winner && v.turnNo ? 'Opponent is playing…' : ''); return; }
     const by = { hand: new Map(), pk: new Map() };
     this.req.legal.forEach((a, i) => { if (a.card) { (by.hand.get(a.card) || by.hand.set(a.card, []).get(a.card)).push(i); } const pid = a.pid ?? (a.t === 'attack' ? v.pl[v.me].active.pid : null); if (pid) (by.pk.get(pid) || by.pk.set(pid, []).get(pid)).push(i); if (a.t === 'retreat') { const b = a.target; (by.pk.get(b) || by.pk.set(b, []).get(b)).push(i); const act = v.pl[v.me].active; if (act) (by.pk.get(act.pid) || by.pk.set(act.pid, []).get(act.pid)).push(i); } });
@@ -189,7 +197,7 @@ export class BoardUI {
     by.pk.forEach((_, pid) => { const u = this.pkUid.get(pid), c = u && this.cards.get(u); if (c && c.spec.side === 'me') c.el.classList.add('canact'); });
     this.hint(this.target ? 'Choose a target · Esc to cancel' : 'Your turn: click a card to play it, drag it onto a Pokémon, or click your Pokémon to attack.');
   }
-  hint(t) { const h = $('#hint'); h.textContent = t; h.classList.toggle('on', !!t); }
+  hint(t) { const h = $('#hint'); h.textContent = t; h.classList.toggle('on', !!t && /target/i.test(t)); }
   bind() {
     $('#endTurn').onclick = () => { if (this.req && this.req.kind === 'main') { const i = this.req.legal.findIndex((a) => a.t === 'end'); this.answer({ i }); } };
     addEventListener('keydown', (e) => { if (e.key === 'Escape') { this.cancelTarget(); this.closeMenu(); this.closeFloat(); } });

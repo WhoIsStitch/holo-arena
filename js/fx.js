@@ -42,19 +42,16 @@ export class FX {
   }
 }
 
-/** ambient animated background for menu: drifting holo cards + stars */
-export function startBackdrop(canvas, imgUrls) {
-  const g = canvas.getContext('2d'); let W, H; const imgs = []; const items = [];
-  const size = () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }; size(); addEventListener('resize', size);
-  imgUrls.forEach((u) => { const i = new Image(); i.src = u; imgs.push(i); });
-  for (let i = 0; i < 12; i++) items.push({ x: Math.random(), y: Math.random(), s: 0.5 + Math.random() * 0.6, vy: 0.012 + Math.random() * 0.02, r: (Math.random() - 0.5) * 0.6, vr: (Math.random() - 0.5) * 0.12, img: i % imgs.length, a: 0.14 + Math.random() * 0.14 });
-  const stars = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), z: Math.random() }));
+/** soft pastel bubbles drifting behind the menu */
+export function startBackdrop(canvas) {
+  const g = canvas.getContext('2d'); let W, H; const size = () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }; size(); addEventListener('resize', size);
+  const cols = ['255,255,255', '120,220,240', '190,160,255', '255,190,210', '170,235,205'];
+  const bubbles = Array.from({ length: 16 }, (_, i) => ({ x: Math.random(), y: Math.random(), r: 40 + Math.random() * 120, vy: 0.008 + Math.random() * 0.016, ph: Math.random() * 6, c: cols[i % cols.length], a: 0.18 + Math.random() * 0.22 }));
   let t0 = performance.now();
   (function frame(now) {
     const dt = (now - t0) / 1000; t0 = now; g.clearRect(0, 0, W, H);
-    stars.forEach((s) => { s.y -= 0.004 * (0.3 + s.z) * dt * 6; if (s.y < 0) s.y = 1; g.globalAlpha = 0.3 + 0.5 * s.z * Math.abs(Math.sin(now / 900 + s.x * 20)); g.fillStyle = '#cfd4ff'; g.fillRect(s.x * W, s.y * H, 1 + s.z * 1.6, 1 + s.z * 1.6); });
-    items.forEach((c) => { c.y -= c.vy * dt; c.r += c.vr * dt; if (c.y < -0.3) { c.y = 1.3; c.x = Math.random(); } const im = imgs[c.img]; if (!im.complete || !im.naturalWidth) return; const h = H * 0.34 * c.s, w = h * 0.716;
-      g.save(); g.globalAlpha = c.a; g.translate(c.x * W, c.y * H); g.rotate(c.r); g.drawImage(im, -w / 2, -h / 2, w, h); g.restore(); });
-    g.globalAlpha = 1; requestAnimationFrame(frame);
+    for (const b of bubbles) { b.y -= b.vy * dt; if (b.y < -0.2) { b.y = 1.2; b.x = Math.random(); } const x = b.x * W + Math.sin(now / 3000 + b.ph) * 20, y = b.y * H;
+      const gr = g.createRadialGradient(x, y, 0, x, y, b.r); gr.addColorStop(0, `rgba(${b.c},${b.a})`); gr.addColorStop(1, `rgba(${b.c},0)`); g.fillStyle = gr; g.beginPath(); g.arc(x, y, b.r, 0, 6.3); g.fill(); }
+    requestAnimationFrame(frame);
   })(t0);
 }

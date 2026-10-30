@@ -22,13 +22,13 @@ let wake = null;
 // ------------------------------------------------------------------ menu
 $('#name').value = store.get('name', '');
 if (REPO_URL) $('#gh').href = REPO_URL; else $('#gh').style.display = 'none';
+setTimeout(() => document.querySelector('.deck.sel') && document.querySelector('.deck.sel').scrollIntoView({ inline: 'center', block: 'nearest' }), 300);
 const covers = decks.map((d) => cards[d.cover].img);
 startBackdrop($('#bgfx'), covers);
 decks.forEach((d) => {
-  const el = document.createElement('div'); el.className = 'deck'; el.dataset.id = d.id; el.style.setProperty('--c1', d.colors[0]);
-  el.innerHTML = `<img src="${cards[d.cover].img}" alt=""><div class="t"><b>${d.name}</b><small>${d.tag}</small></div><span class="tick">✔</span>`;
-  el.onclick = () => { deckId = d.id; store.set('deck', d.id); sync(); audio.sfx('click'); };
-  el.onpointermove = (e) => { const r = el.getBoundingClientRect(); el.style.setProperty('--px', ((e.clientX - r.left) / r.width * 100) + '%'); el.style.setProperty('--py', ((e.clientY - r.top) / r.height * 100) + '%'); };
+  const el = document.createElement('div'); el.className = 'deck'; el.dataset.id = d.id; el.style.setProperty('--c1', d.colors[0]); el.style.setProperty('--c2', d.colors[1]);
+  el.innerHTML = `<div class="pack"><span class="tick">✔</span><img src="${cards[d.cover].img}" alt=""><div class="ribbon">${d.name}</div></div><small>${d.tag}</small>`;
+  el.onclick = () => { deckId = d.id; store.set('deck', d.id); sync(); audio.sfx('click'); el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
   $('#decks').append(el);
 });
 const sync = () => document.querySelectorAll('.deck').forEach((e) => e.classList.toggle('sel', e.dataset.id === deckId)); sync();
@@ -40,8 +40,8 @@ const params = new URLSearchParams(location.search);
 if (params.get('join')) { $('#code').value = cleanCode(params.get('join')); setTimeout(() => toast(`Invite loaded — pick a deck, then press Join`), 600); }
 $('#code').addEventListener('input', (e) => { e.target.value = cleanCode(e.target.value); });
 $('#code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btnJoin').click(); });
-$('#btnHow').onclick = () => $('#how').classList.remove('hidden'); $('#howClose').onclick = () => $('#how').classList.add('hidden');
-const soundLabel = () => ($('#btnSound').textContent = 'Sound: ' + (audio.muted ? 'off' : 'on')); soundLabel();
+$('#btnHow').onclick = $('#btnHow2').onclick = () => $('#how').classList.remove('hidden'); $('#howClose').onclick = () => $('#how').classList.add('hidden');
+const soundLabel = () => ($('#btnSound').textContent = audio.muted ? '🔇' : '🔊'); soundLabel();
 $('#btnSound').onclick = () => { audio.setMuted(!audio.muted); soundLabel(); $('#btnMute').textContent = audio.muted ? '🔇' : '🔊'; };
 
 // ------------------------------------------------------------------ game plumbing
@@ -107,7 +107,7 @@ $('#copyLink').onclick = async () => {
 // ---- join a room
 $('#btnJoin').onclick = async () => {
   const code = cleanCode($('#code').value); if (code.length !== 5) { toast('Enter the 5-character room code'); $('#code').focus(); return; }
-  audio.sfx('click'); const name = myName(); const btn = $('#btnJoin'); btn.disabled = true; btn.querySelector('small').textContent = 'Connecting…'; preload(deckById(deckId).list);
+  audio.sfx('click'); const name = myName(); const btn = $('#btnJoin'); btn.disabled = true; $('#joinMsg').textContent = 'Connecting…'; preload(deckById(deckId).list);
   try {
     const { conn, peer } = await joinRoom(code, {}); const s = { kind: 'guest', peer }; session = s; let started = false;
     const link = wrap(conn, {
@@ -122,7 +122,7 @@ $('#btnJoin').onclick = async () => {
     });
     s.link = link; link.send({ t: 'join', name, deck: deckId });
   } catch (e) { toast(e.message); }
-  btn.disabled = false; btn.querySelector('small').textContent = "Enter a friend's code";
+  btn.disabled = false; $('#joinMsg').textContent = 'Enter the 5-character room code';
 };
 
 window.__ui = ui;
