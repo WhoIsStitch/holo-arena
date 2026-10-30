@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0820">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Holo Arena — Online Card Battles</title>
+<meta name="description" content="Fan-made online card battles for friends. 3D holo cards, real card art, play vs a bot or a friend with a room code.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%237a3cff'/%3E%3Cpath d='M4 50h92' stroke='%23fff' stroke-width='8'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23fff' stroke='%231b1240' stroke-width='6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="bgfx"></canvas>
+
+<!-- ============ MENU ============ -->
+<main id="menu" class="screen active">
+  <header class="hero">
+    <div class="logo"><span>HOLO</span> ARENA</div>
+    <p class="sub">Online card battles for you and your friends</p>
+  </header>
+
+  <section class="panel">
+    <label class="field"><span>Your name</span><input id="name" maxlength="16" placeholder="Trainer" autocomplete="off"></label>
+    <h3>1 · Pick your deck</h3>
+    <div id="decks" class="decks"></div>
+    <h3>2 · Choose how to play</h3>
+    <div class="modes">
+      <button class="btn big" id="btnBot"><b>Practice</b><small>Battle a bot</small></button>
+      <button class="btn big alt" id="btnHost"><b>Host a room</b><small>Get a code for a friend</small></button>
+      <div class="join">
+        <input id="code" maxlength="5" placeholder="ROOM CODE" autocomplete="off" spellcheck="false">
+        <button class="btn big ok" id="btnJoin"><b>Join</b><small>Enter a friend's code</small></button>
+      </div>
+    </div>
+    <div class="foot">
+      <button class="link" id="btnHow">How to play</button><span>·</span>
+      <button class="link" id="btnSound">Sound: on</button><span>·</span>
+      <a class="link" href="https://github.com/" id="gh" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </section>
+  <p class="legal">Fan-made, non-commercial. Not affiliated with or endorsed by Nintendo, Creatures Inc., GAME FREAK or The Pokémon Company. Card images &amp; text are loaded from the TCGdex database.</p>
+</main>
+
+<!-- ============ LOBBY (host waiting) ============ -->
+<main id="lobby" class="screen">
+  <div class="panel narrow">
+    <h2>Room ready</h2>
+    <p>Send this code (or link) to your friend:</p>
+    <div class="bigcode" id="roomCode">-----</div>
+    <div class="row"><button class="btn" id="copyCode">Copy code</button><button class="btn alt" id="copyLink">Copy invite link</button></div>
+    <p class="status" id="lobbyStatus">Waiting for your friend to join…</p>
+    <button class="link" id="lobbyCancel">Cancel</button>
+  </div>
+</main>
+
+<!-- ============ GAME ============ -->
+<main id="game" class="screen">
+  <div id="stage">
+    <div id="tablewrap"><div id="table"></div></div>
+  </div>
+  <canvas id="fx"></canvas>
+  <div id="hud">
+    <div class="who top" id="whoOpp"></div>
+    <div class="who bot" id="whoMe"></div>
+    <div id="turnPill"></div>
+    <div class="hudbtns">
+      <button id="btnLog" title="Game log">📜</button>
+      <button id="btnMute" title="Sound">🔊</button>
+      <button id="btnLeave" title="Leave game">✕</button>
+    </div>
+    <button id="endTurn" class="btn end" disabled>End turn</button>
+    <div id="hint"></div>
+    <div id="piles"></div>
+  </div>
+  <aside id="inspector"></aside>
+  <aside id="log" class="hidden"></aside>
+  <div id="popmenu" class="hidden"></div>
+  <div id="float"></div>
+  <div id="toast"></div>
+  <div id="banner"></div>
+  <div id="spot"></div>
+  <div id="coinwrap"><div id="coin"><i>H</i><b>T</b></div></div>
+</main>
+
+<div id="modal" class="hidden"></div>
+<div id="end" class="hidden"></div>
+<div id="how" class="hidden">
+  <div class="panel narrow">
+    <h2>How to play</h2>
+    <ul>
+      <li><b>Win</b> by taking all 6 Prize cards, leaving your opponent with no Pokémon in play, or when they can't draw at the start of their turn.</li>
+      <li><b>Your turn:</b> draw, then do any of: bench Basic Pokémon, evolve, attach <b>1 Energy</b>, play Items (unlimited), <b>1 Supporter</b>, <b>1 Stadium</b>, retreat <b>once</b>, use Abilities — then <b>attack</b> (or end turn).</li>
+      <li><b>Controls:</b> hover a card to inspect it. Click (or tap) a hand card to play it, or <b>drag it onto a Pokémon</b>. Click/tap your Pokémon to attack, use abilities or retreat. On phones, tapping any card opens a bigger view with its actions.</li>
+      <li>The first player can't attack or play a Supporter on turn 1, and nobody evolves on their first turn.</li>
+      <li><b>Online:</b> one player taps <b>Host a room</b> and shares the 5-character code (or the invite link); the other types it under <b>Join</b>. Works on phones and computers, peer-to-peer, no accounts.</li>
+    </ul>
+    <button class="btn" id="howClose">Got it</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

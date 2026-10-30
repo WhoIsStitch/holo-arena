@@ -1,0 +1,2027 @@
+{
+ "swsh11-079": {
+  "id": "swsh11-079",
+  "name": "Comfey",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 70,
+  "types": [
+   "Psychic"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Metal"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Flower Selecting",
+    "effect": "Once during your turn, if this Pokémon is in the Active Spot, you may look at the top 2 cards of your deck and put 1 of them into your hand. Put the other card in the Lost Zone."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Psychic",
+     "Colorless"
+    ],
+    "name": "Spinning Attack",
+    "damage": 30
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/079/high.webp",
+  "dexId": [
+   764
+  ]
+ },
+ "swsh11-050": {
+  "id": "swsh11-050",
+  "name": "Cramorant",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 110,
+  "types": [
+   "Water"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Lost Provisions",
+    "effect": "If you have 4 or more cards in the Lost Zone, ignore all Energy in this Pokémon's attack costs."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Water",
+     "Water",
+     "Colorless"
+    ],
+    "name": "Spit Innocently",
+    "effect": "This attack's damage isn't affected by Weakness.",
+    "damage": 110
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/050/high.webp",
+  "dexId": [
+   845
+  ]
+ },
+ "swsh11-070": {
+  "id": "swsh11-070",
+  "name": "Sableye",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 80,
+  "types": [
+   "Psychic"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Darkness"
+  ],
+  "resist": [
+   "Fighting"
+  ],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Scratch",
+    "damage": 20
+   },
+   {
+    "cost": [
+     "Psychic"
+    ],
+    "name": "Lost Mine",
+    "effect": "You can use this attack only if you have 10 or more cards in the Lost Zone. Put 12 damage counters on your opponent's Pokémon in any way you like."
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Holo Rare",
+  "suffix": null,
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/070/high.webp",
+  "dexId": [
+   302
+  ]
+ },
+ "swsh11-118": {
+  "id": "swsh11-118",
+  "name": "Drapion V",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 210,
+  "types": [
+   "Darkness"
+  ],
+  "retreat": 2,
+  "weak": [],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Wild Style",
+    "effect": "This Pokémon's attacks cost Colorless less for each of your opponent's Single Strike, Rapid Strike, and Fusion Strike Pokémon in play."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless",
+     "Colorless",
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Dynamic Tail",
+    "effect": "This attack also does 60 damage to 1 of your Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)",
+    "damage": 190
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Holo Rare V",
+  "suffix": "V",
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/118/high.webp",
+  "dexId": [
+   452
+  ]
+ },
+ "sv06.5-038": {
+  "id": "sv06.5-038",
+  "name": "Fezandipiti ex",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 210,
+  "types": [
+   "Darkness"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Fighting"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Flip the Script",
+    "effect": "Once during your turn, if any of your Pokémon were Knocked Out during your opponent's last turn, you may draw 3 cards. You can't use more than 1 Flip the Script Ability each turn."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless",
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Cruel Arrow",
+    "effect": "This attack does 100 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)"
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Shrouded Fable",
+  "img": "https://assets.tcgdex.net/en/sv/sv06.5/038/high.webp",
+  "dexId": [
+   1016
+  ]
+ },
+ "swsh11-130": {
+  "id": "swsh11-130",
+  "name": "Giratina V",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 220,
+  "types": [
+   "Dragon"
+  ],
+  "retreat": 2,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Abyss Seeking",
+    "effect": "Look at the top 4 cards of your deck and put 2 of them into your hand. Put the other cards in the Lost Zone."
+   },
+   {
+    "cost": [
+     "Grass",
+     "Psychic",
+     "Colorless"
+    ],
+    "name": "Shred",
+    "effect": "This attack's damage isn't affected by any effects on your opponent's Active Pokémon.",
+    "damage": 160
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Holo Rare V",
+  "suffix": "V",
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/130/high.webp",
+  "dexId": [
+   487
+  ]
+ },
+ "swsh11-131": {
+  "id": "swsh11-131",
+  "name": "Giratina VSTAR",
+  "cat": "Pokemon",
+  "stage": "VSTAR",
+  "evolveFrom": "Giratina V",
+  "hp": 280,
+  "types": [
+   "Dragon"
+  ],
+  "retreat": 2,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Grass",
+     "Psychic",
+     "Colorless"
+    ],
+    "name": "Lost Impact",
+    "effect": "Put 2 Energy attached to your Pokémon in the Lost Zone.",
+    "damage": 280
+   },
+   {
+    "cost": [
+     "Grass",
+     "Psychic"
+    ],
+    "name": "Star Requiem",
+    "effect": "You can use this attack only if you have 10 or more cards in the Lost Zone. Your opponent's Active Pokémon is Knocked Out. (You can't use more than 1 VSTAR Power in a game.)"
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Holo Rare VSTAR",
+  "suffix": "VSTAR",
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/131/high.webp",
+  "dexId": [
+   487
+  ]
+ },
+ "swsh10-046": {
+  "id": "swsh10-046",
+  "name": "Radiant Greninja",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 130,
+  "types": [
+   "Water"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Concealed Cards",
+    "effect": "You must discard an Energy card from your hand in order to use this Ability. Once during your turn, you may draw 2 cards."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Water",
+     "Water",
+     "Colorless"
+    ],
+    "name": "Moonlight Shuriken",
+    "effect": "Discard 2 Energy from this Pokémon. This attack does 90 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)"
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Radiant Rare",
+  "suffix": "Radiant",
+  "set": "Astral Radiance",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh10/046/high.webp",
+  "dexId": [
+   658
+  ]
+ },
+ "swsh9-041": {
+  "id": "swsh9-041",
+  "name": "Manaphy",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 70,
+  "types": [
+   "Water"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Wave Veil",
+    "effect": "Prevent all damage done to your Benched Pokémon by attacks from your opponent's Pokémon."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Water"
+    ],
+    "name": "Rain Splash",
+    "damage": 20
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Brilliant Stars",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh9/041/high.webp",
+  "dexId": [
+   490
+  ]
+ },
+ "swsh11-155": {
+  "id": "swsh11-155",
+  "name": "Colress's Experiment",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Look at the top 5 cards of your deck and put 3 of them into your hand. Put the other cards in the Lost Zone.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/155/high.webp",
+  "dexId": null
+ },
+ "sv04.5-084": {
+  "id": "sv04.5-084",
+  "name": "Nest Ball",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldean Fates",
+  "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/high.webp",
+  "dexId": null
+ },
+ "swsh11-163": {
+  "id": "swsh11-163",
+  "name": "Mirage Gate",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "You can use this card only if you have 7 or more cards in the Lost Zone.\nSearch your deck for up to 2 basic Energy cards of different types and attach them to your Pokémon in any way you like. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Lost Origin",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh11/163/high.webp",
+  "dexId": null
+ },
+ "sv08.5-101": {
+  "id": "sv08.5-101",
+  "name": "Buddy-Buddy Poffin",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Search your deck for up to 2 Basic Pokémon with 70 HP or less and put them onto your Bench. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/101/high.webp",
+  "dexId": null
+ },
+ "sv04.5-076": {
+  "id": "sv04.5-076",
+  "name": "Artazon",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Stadium",
+  "energyType": null,
+  "effect": "Once during each player's turn, that player may search their deck for a Basic Pokémon that doesn't have a Rule Box and put it onto their Bench. Then, that player shuffles their deck. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldean Fates",
+  "img": "https://assets.tcgdex.net/en/sv/sv04.5/076/high.webp",
+  "dexId": null
+ },
+ "swsh10-154": {
+  "id": "swsh10-154",
+  "name": "Switch Cart",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Switch your Active Basic Pokémon with 1 of your Benched Pokémon. If you do, heal 30 damage from the Pokémon you moved to your Bench.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Astral Radiance",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh10/154/high.webp",
+  "dexId": null
+ },
+ "sv01-194": {
+  "id": "sv01-194",
+  "name": "Switch",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Switch your Active Pokémon with 1 of your Benched Pokémon.",
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/194/high.webp",
+  "dexId": null
+ },
+ "dv1-20": {
+  "id": "dv1-20",
+  "name": "Super Rod",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Shuffle 3 in any combination of Pokémon and basic Energy cards from your discard pile back into your deck. You may play as many Item cards as you like during your turn (before your attack).",
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Dragon Vault",
+  "img": "https://assets.tcgdex.net/en/bw/dv1/20/high.webp",
+  "dexId": null
+ },
+ "me01-114": {
+  "id": "me01-114",
+  "name": "Boss's Orders",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Switch in 1 of your opponent's Benched Pokémon to the Active Spot.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Mega Evolution",
+  "img": "https://assets.tcgdex.net/en/me/me01/114/high.webp",
+  "dexId": null
+ },
+ "swsh10-150": {
+  "id": "swsh10-150",
+  "name": "Roxanne",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "You can use this card only if your opponent has 3 or fewer Prize cards remaining.\nEach player shuffles their hand into their deck. Then, you draw 6 cards, and your opponent draws 2 cards.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Astral Radiance",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh10/150/high.webp",
+  "dexId": null
+ },
+ "sv10.5b-084": {
+  "id": "sv10.5b-084",
+  "name": "Pokégear 3.0",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Look at the top 7 cards of your deck. You may reveal a Supporter card you find there and put it into your hand. Shuffle the other cards back into your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Black Bolt",
+  "img": "https://assets.tcgdex.net/en/sv/sv10.5b/084/high.webp",
+  "dexId": null
+ },
+ "sv08.5-126": {
+  "id": "sv08.5-126",
+  "name": "Rescue Board",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Tool",
+  "energyType": null,
+  "effect": "The Retreat Cost of the Pokémon this card is attached to is {C} less. If that Pokémon's remaining HP is 30 or less, it has no Retreat Cost.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/126/high.webp",
+  "dexId": null
+ },
+ "sv08.5-119": {
+  "id": "sv08.5-119",
+  "name": "Prime Catcher",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Switch in 1 of your opponent's Benched Pokémon to the Active Spot. If you do, switch your Active Pokémon with 1 of your Benched Pokémon.",
+  "rarity": "ACE SPEC Rare",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/119/high.webp",
+  "dexId": null
+ },
+ "sv02-190": {
+  "id": "sv02-190",
+  "name": "Jet Energy",
+  "cat": "Energy",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Special",
+  "effect": "As long as this card is attached to a Pokémon, it provides {C} Energy.\n\nWhen you attach this card from your hand to 1 of your Benched Pokémon, switch that Pokémon with your Active Pokémon.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldea Evolved",
+  "img": "https://assets.tcgdex.net/en/sv/sv02/190/high.webp",
+  "dexId": null
+ },
+ "ex16-105": {
+  "id": "ex16-105",
+  "name": "Water Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/105/high.webp",
+  "dexId": null
+ },
+ "ex16-107": {
+  "id": "ex16-107",
+  "name": "Psychic Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/107/high.webp",
+  "dexId": null
+ },
+ "ex16-103": {
+  "id": "ex16-103",
+  "name": "Grass Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/103/high.webp",
+  "dexId": null
+ },
+ "ex16-104": {
+  "id": "ex16-104",
+  "name": "Fire Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/104/high.webp",
+  "dexId": null
+ },
+ "ex16-106": {
+  "id": "ex16-106",
+  "name": "Lightning Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/106/high.webp",
+  "dexId": null
+ },
+ "sv03.5-004": {
+  "id": "sv03.5-004",
+  "name": "Charmander",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 70,
+  "types": [
+   "Fire"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Water"
+  ],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Fire"
+    ],
+    "name": "Blazing Destruction",
+    "effect": "Discard a Stadium in play."
+   },
+   {
+    "cost": [
+     "Fire",
+     "Fire"
+    ],
+    "name": "Steady Firebreathing",
+    "damage": 30
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "151",
+  "img": "https://assets.tcgdex.net/en/sv/sv03.5/004/high.webp",
+  "dexId": [
+   4
+  ]
+ },
+ "sv03.5-005": {
+  "id": "sv03.5-005",
+  "name": "Charmeleon",
+  "cat": "Pokemon",
+  "stage": "Stage1",
+  "evolveFrom": "Charmander",
+  "hp": 100,
+  "types": [
+   "Fire"
+  ],
+  "retreat": 2,
+  "weak": [
+   "Water"
+  ],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Fire"
+    ],
+    "name": "Combustion",
+    "damage": 20
+   },
+   {
+    "cost": [
+     "Fire",
+     "Fire",
+     "Fire"
+    ],
+    "name": "Fire Blast",
+    "effect": "Discard an Energy from this Pokémon.",
+    "damage": 90
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "151",
+  "img": "https://assets.tcgdex.net/en/sv/sv03.5/005/high.webp",
+  "dexId": [
+   5
+  ]
+ },
+ "sv03-125": {
+  "id": "sv03-125",
+  "name": "Charizard ex",
+  "cat": "Pokemon",
+  "stage": "Stage2",
+  "evolveFrom": "Charmeleon",
+  "hp": 330,
+  "types": [
+   "Darkness"
+  ],
+  "retreat": 2,
+  "weak": [
+   "Grass"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Infernal Reign",
+    "effect": "When you play this Pokémon from your hand to evolve 1 of your Pokémon during your turn, you may search your deck for up to 3 Basic {R} Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Fire",
+     "Fire"
+    ],
+    "name": "Burning Darkness",
+    "effect": "This attack does 30 more damage for each Prize card your opponent has taken.",
+    "damage": "180+"
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Obsidian Flames",
+  "img": "https://assets.tcgdex.net/en/sv/sv03/125/high.webp",
+  "dexId": [
+   6
+  ]
+ },
+ "sv03.5-016": {
+  "id": "sv03.5-016",
+  "name": "Pidgey",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 50,
+  "types": [
+   "Colorless"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [
+   "Fighting"
+  ],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Call for Family",
+    "effect": "Search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck."
+   },
+   {
+    "cost": [
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Tackle",
+    "damage": 20
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "151",
+  "img": "https://assets.tcgdex.net/en/sv/sv03.5/016/high.webp",
+  "dexId": [
+   16
+  ]
+ },
+ "sv03.5-017": {
+  "id": "sv03.5-017",
+  "name": "Pidgeotto",
+  "cat": "Pokemon",
+  "stage": "Stage1",
+  "evolveFrom": "Pidgey",
+  "hp": 80,
+  "types": [
+   "Colorless"
+  ],
+  "retreat": 0,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [
+   "Fighting"
+  ],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Flap",
+    "damage": 20
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "151",
+  "img": "https://assets.tcgdex.net/en/sv/sv03.5/017/high.webp",
+  "dexId": [
+   17
+  ]
+ },
+ "sv03-164": {
+  "id": "sv03-164",
+  "name": "Pidgeot ex",
+  "cat": "Pokemon",
+  "stage": "Stage2",
+  "evolveFrom": "Pidgeotto",
+  "hp": 280,
+  "types": [
+   "Colorless"
+  ],
+  "retreat": 0,
+  "weak": [
+   "Lightning"
+  ],
+  "resist": [
+   "Fighting"
+  ],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Quick Search",
+    "effect": "Once during your turn, you may search your deck for a card and put it into your hand. Then, shuffle your deck. You can't use more than 1 Quick Search Ability each turn."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Blustery Wind",
+    "effect": "You may discard a Stadium in play.",
+    "damage": 120
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Obsidian Flames",
+  "img": "https://assets.tcgdex.net/en/sv/sv03/164/high.webp",
+  "dexId": [
+   18
+  ]
+ },
+ "sv01-191": {
+  "id": "sv01-191",
+  "name": "Rare Candy",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Choose 1 of your Basic Pokémon in play. If you have a Stage 2 card in your hand that evolves from that Pokémon, put that card onto the Basic Pokémon to evolve it, skipping the Stage 1. You can't use this card during your first turn or on a Basic Pokémon that was put into play this turn.",
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/191/high.webp",
+  "dexId": null
+ },
+ "sv04.5-091": {
+  "id": "sv04.5-091",
+  "name": "Ultra Ball",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "You can use this card only if you discard 2 other cards from your hand.\n\nSearch your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldean Fates",
+  "img": "https://assets.tcgdex.net/en/sv/sv04.5/091/high.webp",
+  "dexId": null
+ },
+ "sv01-166": {
+  "id": "sv01-166",
+  "name": "Arven",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Search your deck for an Item card and a Pokémon Tool card, reveal them, and put them into your hand. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/166/high.webp",
+  "dexId": null
+ },
+ "sv01-189": {
+  "id": "sv01-189",
+  "name": "Professor's Research",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Discard your hand and draw 7 cards.",
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/189/high.webp",
+  "dexId": null
+ },
+ "sv02-185": {
+  "id": "sv02-185",
+  "name": "Iono",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, each player draws a card for each of their remaining Prize cards.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldea Evolved",
+  "img": "https://assets.tcgdex.net/en/sv/sv02/185/high.webp",
+  "dexId": null
+ },
+ "sv01-081": {
+  "id": "sv01-081",
+  "name": "Miraidon ex",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 220,
+  "types": [
+   "Lightning"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Fighting"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Tandem Unit",
+    "effect": "Once during your turn, you may search your deck for up to 2 Basic {L} Pokémon and put them onto your Bench. Then, shuffle your deck."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Lightning",
+     "Lightning",
+     "Colorless"
+    ],
+    "name": "Photon Blaster",
+    "effect": "During your next turn, this Pokémon can't attack.",
+    "damage": 220
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/081/high.webp",
+  "dexId": [
+   1008
+  ]
+ },
+ "sv04-070": {
+  "id": "sv04-070",
+  "name": "Iron Hands ex",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 230,
+  "types": [
+   "Lightning"
+  ],
+  "retreat": 4,
+  "weak": [
+   "Fighting"
+  ],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Lightning",
+     "Lightning",
+     "Colorless"
+    ],
+    "name": "Arm Press",
+    "damage": 160
+   },
+   {
+    "cost": [
+     "Lightning",
+     "Colorless",
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Amp You Very Much",
+    "effect": "If your opponent's Pokémon is Knocked Out by damage from this attack, take 1 more Prize card.",
+    "damage": 120
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Paradox Rift",
+  "img": "https://assets.tcgdex.net/en/sv/sv04/070/high.webp",
+  "dexId": [
+   992
+  ]
+ },
+ "swsh9-048": {
+  "id": "swsh9-048",
+  "name": "Raikou V",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 200,
+  "types": [
+   "Lightning"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Fighting"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Fleet-Footed",
+    "effect": "Once during your turn, if this Pokémon is in the Active Spot, you may draw a card."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Lightning",
+     "Colorless"
+    ],
+    "name": "Lightning Rondo",
+    "effect": "This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's).",
+    "damage": "20+"
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Holo Rare V",
+  "suffix": "V",
+  "set": "Brilliant Stars",
+  "img": "https://assets.tcgdex.net/en/swsh/swsh9/048/high.webp",
+  "dexId": [
+   243
+  ]
+ },
+ "sv01-170": {
+  "id": "sv01-170",
+  "name": "Electric Generator",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Look at the top 5 cards of your deck and attach up to 2 Basic {L} Energy cards you find there to your Benched {L} Pokémon in any way you like. Shuffle the other cards back into your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/170/high.webp",
+  "dexId": null
+ },
+ "sv10.5b-068": {
+  "id": "sv10.5b-068",
+  "name": "Axew",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 70,
+  "types": [
+   "Dragon"
+  ],
+  "retreat": 2,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Gather Strength",
+    "effect": "Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck."
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Black Bolt",
+  "img": "https://assets.tcgdex.net/en/sv/sv10.5b/068/high.webp"
+ },
+ "sv10.5b-069": {
+  "id": "sv10.5b-069",
+  "name": "Fraxure",
+  "cat": "Pokemon",
+  "stage": "Stage1",
+  "evolveFrom": "Axew",
+  "hp": 100,
+  "types": [
+   "Dragon"
+  ],
+  "retreat": 2,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Bite",
+    "damage": 30
+   },
+   {
+    "cost": [
+     "Fighting",
+     "Metal"
+    ],
+    "name": "Boundless Power",
+    "effect": "During your next turn, this Pokémon can't use attacks.",
+    "damage": 90
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Black Bolt",
+  "img": "https://assets.tcgdex.net/en/sv/sv10.5b/069/high.webp"
+ },
+ "sv10.5b-070": {
+  "id": "sv10.5b-070",
+  "name": "Haxorus",
+  "cat": "Pokemon",
+  "stage": "Stage2",
+  "evolveFrom": "Fraxure",
+  "hp": 170,
+  "types": [
+   "Dragon"
+  ],
+  "retreat": 3,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Cross-Cut",
+    "effect": "If your opponent's Active Pokémon is an Evolution Pokémon, this attack does 80 more damage.",
+    "damage": "80+"
+   },
+   {
+    "cost": [
+     "Fighting",
+     "Metal",
+     "Colorless"
+    ],
+    "name": "Axe Blast",
+    "effect": "If your opponent's Active Pokémon is a Basic Pokémon, it is Knocked Out."
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Black Bolt",
+  "img": "https://assets.tcgdex.net/en/sv/sv10.5b/070/high.webp"
+ },
+ "sv04.5-037": {
+  "id": "sv04.5-037",
+  "name": "Mimikyu",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 70,
+  "types": [
+   "Psychic"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Metal"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Safeguard",
+    "effect": "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex and Pokémon V."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Psychic",
+     "Colorless"
+    ],
+    "name": "Ghost Eye",
+    "effect": "Put 7 damage counters on your opponent's Active Pokémon."
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Paldean Fates",
+  "img": "https://assets.tcgdex.net/en/sv/sv04.5/037/high.webp"
+ },
+ "sv08.5-004": {
+  "id": "sv08.5-004",
+  "name": "Budew",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 30,
+  "types": [
+   "Grass"
+  ],
+  "retreat": 0,
+  "weak": [
+   "Fire"
+  ],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "name": "Itchy Pollen",
+    "effect": "During your opponent's next turn, they can't play any Item cards from their hand.",
+    "damage": 10
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/004/high.webp"
+ },
+ "sv08.5-058": {
+  "id": "sv08.5-058",
+  "name": "Cornerstone Mask Ogerpon ex",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 210,
+  "types": [
+   "Fighting"
+  ],
+  "retreat": 1,
+  "weak": [
+   "Grass"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Cornerstone Stance",
+    "effect": "Prevent all damage from attacks done to this Pokémon by your opponent's Pokémon that have an Ability."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Fighting",
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Demolish",
+    "effect": "This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.",
+    "damage": 140
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/058/high.webp"
+ },
+ "sv06-141": {
+  "id": "sv06-141",
+  "name": "Bloodmoon Ursaluna ex",
+  "cat": "Pokemon",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": 260,
+  "types": [
+   "Colorless"
+  ],
+  "retreat": 3,
+  "weak": [
+   "Fighting"
+  ],
+  "resist": [],
+  "abilities": [
+   {
+    "type": "Ability",
+    "name": "Seasoned Skill",
+    "effect": "Blood Moon used by this Pokémon costs {C} less for each Prize card your opponent has taken."
+   }
+  ],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless",
+     "Colorless",
+     "Colorless",
+     "Colorless",
+     "Colorless"
+    ],
+    "name": "Blood Moon",
+    "effect": "During your next turn, this Pokémon can't attack.",
+    "damage": 240
+   }
+  ],
+  "trainerType": null,
+  "energyType": null,
+  "effect": null,
+  "rarity": "Double rare",
+  "suffix": "ex",
+  "set": "Twilight Masquerade",
+  "img": "https://assets.tcgdex.net/en/sv/sv06/141/high.webp"
+ },
+ "sv01-196": {
+  "id": "sv01-196",
+  "name": "Ultra Ball",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "You can use this card only if you discard 2 other cards from your hand.\n\nSearch your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/196/high.webp"
+ },
+ "sv01-181": {
+  "id": "sv01-181",
+  "name": "Nest Ball",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/181/high.webp"
+ },
+ "sv05-144": {
+  "id": "sv05-144",
+  "name": "Buddy-Buddy Poffin",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Search your deck for up to 2 Basic Pokémon with 70 HP or less and put them onto your Bench. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Temporal Forces",
+  "img": "https://assets.tcgdex.net/en/sv/sv05/144/high.webp"
+ },
+ "sv04.5-089": {
+  "id": "sv04.5-089",
+  "name": "Rare Candy",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Choose 1 of your Basic Pokémon in play. If you have a Stage 2 card in your hand that evolves from that Pokémon, put that card onto the Basic Pokémon to evolve it, skipping the Stage 1. You can't use this card during your first turn or on a Basic Pokémon that was put into play this turn.",
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Paldean Fates",
+  "img": "https://assets.tcgdex.net/en/sv/sv04.5/089/high.webp"
+ },
+ "sv04-160": {
+  "id": "sv04-160",
+  "name": "Counter Catcher",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "You can use this card only if you have more Prize cards remaining than your opponent.\n\nSwitch in 1 of your opponent's Benched Pokémon to the Active Spot.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paradox Rift",
+  "img": "https://assets.tcgdex.net/en/sv/sv04/160/high.webp"
+ },
+ "sv06.5-061": {
+  "id": "sv06.5-061",
+  "name": "Night Stretcher",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "Put a Pokémon or a Basic Energy card from your discard pile into your hand.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Shrouded Fable",
+  "img": "https://assets.tcgdex.net/en/sv/sv06.5/061/high.webp"
+ },
+ "sv08.5-106": {
+  "id": "sv08.5-106",
+  "name": "Earthen Vessel",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Item",
+  "energyType": null,
+  "effect": "You can use this card only if you discard another card from your hand.\n\nSearch your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/106/high.webp"
+ },
+ "sv03-186": {
+  "id": "sv03-186",
+  "name": "Arven",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Search your deck for an Item card and a Pokémon Tool card, reveal them, and put them into your hand. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Obsidian Flames",
+  "img": "https://assets.tcgdex.net/en/sv/sv03/186/high.webp"
+ },
+ "sv08.5-096": {
+  "id": "sv08.5-096",
+  "name": "Black Belt's Training",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "During this turn, attacks used by your Pokémon do 40 more damage to your opponent's Active Pokémon ex (before applying Weakness and Resistance).",
+  "rarity": "Common",
+  "suffix": null,
+  "set": "Prismatic Evolutions",
+  "img": "https://assets.tcgdex.net/en/sv/sv08.5/096/high.webp"
+ },
+ "sv07-133": {
+  "id": "sv07-133",
+  "name": "Crispin",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Search your deck for up to 2 Basic Energy cards of different types, reveal them, and put 1 of them into your hand. Attach the other to 1 of your Pokémon. Then, shuffle your deck.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Stellar Crown",
+  "img": "https://assets.tcgdex.net/en/sv/sv07/133/high.webp"
+ },
+ "sv02-172": {
+  "id": "sv02-172",
+  "name": "Boss's Orders",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Switch in 1 of your opponent's Benched Pokémon to the Active Spot.",
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Paldea Evolved",
+  "img": "https://assets.tcgdex.net/en/sv/sv02/172/high.webp"
+ },
+ "sv06-155": {
+  "id": "sv06-155",
+  "name": "Lana's Aid",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Supporter",
+  "energyType": null,
+  "effect": "Put up to 3 in any combination of Pokémon that don't have a Rule Box and Basic Energy cards from your discard pile into your hand. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Twilight Masquerade",
+  "img": "https://assets.tcgdex.net/en/sv/sv06/155/high.webp"
+ },
+ "sv05-154": {
+  "id": "sv05-154",
+  "name": "Maximum Belt",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Tool",
+  "energyType": null,
+  "effect": "Attacks used by the Pokémon this card is attached to do 50 more damage to your opponent's Active Pokémon ex (before applying Weakness and Resistance).",
+  "rarity": "ACE SPEC Rare",
+  "suffix": null,
+  "set": "Temporal Forces",
+  "img": "https://assets.tcgdex.net/en/sv/sv05/154/high.webp"
+ },
+ "sv04-178": {
+  "id": "sv04-178",
+  "name": "Technical Machine: Evolution",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [
+   {
+    "cost": [
+     "Colorless"
+    ],
+    "name": "Evolution",
+    "effect": "Choose up to 2 of your Benched Pokémon. For each of those Pokémon, search your deck for a card that evolves from that Pokémon and put it onto that Pokémon to evolve it. Then, shuffle your deck."
+   }
+  ],
+  "trainerType": "Tool",
+  "energyType": null,
+  "effect": "The Pokémon this card is attached to can use the attack on this card. (You still need the necessary Energy to use this attack.) If this card is attached to 1 of your Pokémon, discard it at the end of your turn.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paradox Rift",
+  "img": "https://assets.tcgdex.net/en/sv/sv04/178/high.webp"
+ },
+ "sv01-169": {
+  "id": "sv01-169",
+  "name": "Defiance Band",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Tool",
+  "energyType": null,
+  "effect": "If you have more Prize cards remaining than your opponent, the attacks of the Pokémon this card is attached to do 30 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance).",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Scarlet & Violet",
+  "img": "https://assets.tcgdex.net/en/sv/sv01/169/high.webp"
+ },
+ "sv02-171": {
+  "id": "sv02-171",
+  "name": "Artazon",
+  "cat": "Trainer",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": "Stadium",
+  "energyType": null,
+  "effect": "Once during each player's turn, that player may search their deck for a Basic Pokémon that doesn't have a Rule Box and put it onto their Bench. Then, that player shuffles their deck. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldea Evolved",
+  "img": "https://assets.tcgdex.net/en/sv/sv02/171/high.webp"
+ },
+ "sv02-192": {
+  "id": "sv02-192",
+  "name": "Reversal Energy",
+  "cat": "Energy",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Special",
+  "effect": "As long as this card is attached to a Pokémon, it provides {C} Energy.\n\nIf you have more Prize cards remaining than your opponent, and if this card is attached to an Evolution Pokémon that doesn't have a Rule Box (Pokémon ex, Pokémon V, etc. have Rule Boxes), this card provides every type of Energy but provides only 3 Energy at a time.",
+  "rarity": "Uncommon",
+  "suffix": null,
+  "set": "Paldea Evolved",
+  "img": "https://assets.tcgdex.net/en/sv/sv02/192/high.webp"
+ },
+ "ex16-108": {
+  "id": "ex16-108",
+  "name": "Fighting Energy",
+  "cat": "Energy",
+  "stage": "Basic",
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Normal",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/108/high.webp"
+ },
+ "ex16-88": {
+  "id": "ex16-88",
+  "name": "Metal Energy",
+  "cat": "Energy",
+  "stage": null,
+  "evolveFrom": null,
+  "hp": null,
+  "types": null,
+  "retreat": null,
+  "weak": [],
+  "resist": [],
+  "abilities": [],
+  "attacks": [],
+  "trainerType": null,
+  "energyType": "Special",
+  "effect": null,
+  "rarity": "Rare",
+  "suffix": null,
+  "set": "Power Keepers",
+  "img": "https://assets.tcgdex.net/en/ex/ex16/88/high.webp"
+ }
+}

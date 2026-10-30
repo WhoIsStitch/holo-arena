@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import { Game, setDB, expandDeck, D } from '../js/engine.js';
+import { Bot } from '../js/bot.js';
+setDB(JSON.parse(fs.readFileSync(new URL('../data/cards.json', import.meta.url))));
+const decks = JSON.parse(fs.readFileSync(new URL('../data/decks.json', import.meta.url)));
+const [ia, ib, seed, maxLines] = [process.argv[2] || 'lost', process.argv[3] || 'miraidon', +process.argv[4] || 1000, +process.argv[5] || 120];
+const lines = [];
+const wrap = (b) => { const o = b.ask.bind(b); b.update = (v, evs) => { for (const e of evs) if (e.type === 'log') lines.push(e.text); }; return b; };
+const g = new Game({ decks: [expandDeck(decks.find((d) => d.id === ia).list), expandDeck(decks.find((d) => d.id === ib).list)], names: [ia, ib], ctl: [new Bot(), wrap(new Bot())], seed });
+g.ctl[0].update = (v, evs) => { for (const e of evs) if (e.type === 'log') lines.push(e.text); };
+g.ctl[1].update = () => {};
+await g.run();
+console.log(lines.slice(0, maxLines).join('\n')); console.log('...'); console.log(lines.slice(-12).join('\n'));
+console.log('turns', g.turnNo, 'lost0', g.pl[0].lost.length, 'prizes', g.pl[0].prizes.length, g.pl[1].prizes.length, 'deck', g.pl[0].deck.length, g.pl[1].deck.length);
