@@ -211,3 +211,20 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 /* steady floating card: no bobbing, small smooth tilt only */
 #float .fcard.card { animation: none; } #float .fshadow { animation: none; }
 #float .fcard .inner { transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+
+.btn.hand { position: absolute; right: 168px; bottom: 12px; padding: 13px 20px; font-size: 15px; z-index: 9500; }
+.opt.playable-opt img { box-shadow: 0 0 0 3px #3fe0f0, 0 0 14px rgba(34, 207, 228, .6), 0 6px 14px rgba(50, 70, 130, .4); }
+@media (max-width: 900px), (max-height: 520px) { .btn.hand { padding: 10px 16px; font-size: 14px; } }
+
+/* ---- no 3D on the board (safer in Firefox): 2D flip, flat stacking ---- */
+.card, .card .inner { transform-style: flat !important; }
+.card .face { backface-visibility: visible !important; }
+.card.down .inner { transform: none !important; } .card .back { transform: none !important; }
+.card.down .front { display: none; } .card:not(.down) .back { display: none; }
+.card.flip .inner { animation: flipx .32s ease-in-out; } @keyframes flipx { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.03); } }
+#float .fcard, #float .fcard .inner { transform-style: preserve-3d !important; }
+#float .fcard.card .back { display: none; }
+.who.bot { display: none !important; }
+.btn.end { right: 10px; bottom: auto; padding: 11px 18px; font-size: 16px; } .btn.hand { right: 10px; bottom: auto; padding: 10px 18px; font-size: 14px; }
+
+#float { z-index: 100; }

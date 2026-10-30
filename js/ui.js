@@ -24,7 +24,7 @@ function makeLayout(W, H) {
       op: { active: [cx, R[2]], benchY: R[1], deck: [p1, R[0]], discard: [p2, R[0]], lost: [p3, R[0]], prizeAt: [pz, R[0]], handY: -ch * 0.3 } };
     stadium = [cx, R[3]];
   }
-  return { W, H, port, cw, ch, hw: port ? W - 20 : W - 380, bx: (i) => cx + (i - 2) * gap, stadium, handMid: cx, pos };
+  return { W, H, port, cw, ch, hw: W - 24, bx: (i) => cx + (i - 2) * gap, stadium, handMid: cx, pos };
 }
 const STATUS_ICON = { poisoned: '☠️', burned: '🔥', asleep: '💤', paralyzed: '⚡', confused: '💫' };
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -41,7 +41,8 @@ export class BoardUI {
   fit() {
     const L = makeLayout(innerWidth, innerHeight); this.L = L; this.cw = L.cw; this.ch = L.ch;
     const st = document.documentElement.style; st.setProperty('--cw', L.cw.toFixed(1) + 'px'); st.setProperty('--ch', L.ch.toFixed(1) + 'px'); st.setProperty('--fs', (L.ch * 0.085).toFixed(1) + 'px');
-    const eb = $('#endTurn'); if (L.port) { eb.style.top = (L.stadium[1] - 22) + 'px'; eb.style.bottom = 'auto'; } else { eb.style.top = 'auto'; eb.style.bottom = ''; }
+    const eb = $('#endTurn'); eb.style.bottom = 'auto'; eb.style.right = '10px'; eb.style.top = (L.port ? L.stadium[1] - 22 : L.pos.me.active[1] - 26) + 'px';
+    const hb = $('#handBtn'); hb.style.bottom = 'auto'; if (L.port) { hb.style.top = (L.stadium[1] - 22) + 'px'; hb.style.left = '10px'; hb.style.right = 'auto'; } else { hb.style.top = (L.pos.me.active[1] + 32) + 'px'; hb.style.left = 'auto'; hb.style.right = '10px'; }
     this.buildTable(); if (this.view) this.apply(this.view);
   }
 
@@ -72,7 +73,7 @@ export class BoardUI {
     for (const i of [0, 1]) {
       const side = i === me ? 'me' : 'op', P = L.pos[side], pl = v.pl[i];
       const n = pl.hand.length, hm = L.handMid;
-      const step = side === 'me' ? Math.min(cw * 1.1, n > 1 ? (L.hw - cw) / (n - 1) : 999) : Math.min(cw * 0.42, n > 1 ? (L.W * 0.5) / (n - 1) : 999);
+      const step = side === 'me' ? Math.max(cw * 0.3, Math.min(cw * 1.1, n > 1 ? (L.hw - cw) / (n - 1) : 999)) : Math.min(cw * 0.42, n > 1 ? (L.W * 0.5) / (n - 1) : 999);
       pl.hand.forEach((c, k) => { const off = k - (n - 1) / 2;
         out.push({ uid: c.uid, id: c.id || null, x: hm + off * step, y: P.handY, s: side === 'me' ? 1 : 0.56, rot: 0, z: side === 'me' ? 100 + k : 2, down: !c.id, zone: 'hand', side, owner: i }); });
       const pkSpec = (pk, x, y, z, zone) => out.push({ uid: pk.uid, id: pk.id, x, y, s: 1, rot: 0, z, down: false, zone, side, pk, owner: i });
@@ -99,7 +100,8 @@ export class BoardUI {
   setT(e, sp) { e.style.transform = `translate(${sp.x - this.cw / 2}px, ${sp.y - this.ch / 2}px) rotate(${sp.rot || 0}deg) scale(${sp.s})`; }
   place(c, sp) {
     const e = c.el; c.spec = sp; if (sp.id && c.id !== sp.id) { c.id = sp.id; c.img.src = D(sp.id).img; const d = D(sp.id); e.classList.toggle('foil', !!(d.suffix || /Holo|Rare|ACE|Radiant|Double|Ultra/.test(d.rarity || '') && d.cat === 'Pokemon')); }
-    e.classList.toggle('down', !!sp.down); e.classList.toggle('hand', sp.zone === 'hand'); e.classList.toggle('mine', sp.side === 'me'); e.classList.toggle('pk', !!sp.pk);
+    { const nd = !!sp.down, wd = e.classList.contains('down'); if (nd !== wd && !e.classList.contains('snap')) { e.classList.add('flip'); setTimeout(() => e.classList.toggle('down', nd), 140); setTimeout(() => e.classList.remove('flip'), 320); } else e.classList.toggle('down', nd); }
+    e.classList.toggle('hand', sp.zone === 'hand'); e.classList.toggle('mine', sp.side === 'me'); e.classList.toggle('pk', !!sp.pk);
     e.classList.toggle('idle', !!sp.pk && !!sp.id); e.style.zIndex = sp.z; this.setT(e, sp); e.dataset.pid = sp.pk ? sp.pk.pid : ''; e.dataset.zone = sp.zone;
     // overlay (hp, energy, tool, status)
     const pk = sp.pk; let sig = ''; if (pk) sig = JSON.stringify([pk.dmg, pk.hp, pk.energy.map((x) => x.id), pk.tool && pk.tool.id, pk.cond]);
@@ -131,6 +133,7 @@ export class BoardUI {
       this.zones[side + 'Deck'].querySelector('.cnt').textContent = pl.deckN; this.zones[side + 'Discard'].querySelector('.cnt').textContent = pl.discard.length || '';
       this.zones[side + 'Lost'].querySelector('.cnt').textContent = pl.lost.length || ''; this.zones[side + 'Prize'].querySelector('.cnt').textContent = pl.prizeN;
       this.zones[side + 'Active'].classList.toggle('on', v.cur === i); }
+    $('#handBtn').textContent = `Hand · ${v.pl[v.me].handN}`;
     $('#whoMe').innerHTML = this.who(v, v.me); $('#whoOpp').innerHTML = this.who(v, 1 - v.me);
     $('#whoMe').classList.toggle('turn', v.cur === v.me && !v.winner); $('#whoOpp').classList.toggle('turn', v.cur !== v.me && !v.winner);
     const tp = $('#turnPill'); const mine = v.cur === v.me; tp.textContent = v.turnNo ? (mine ? 'Your turn' : "Opponent's turn") : 'Setting up'; tp.className = v.turnNo ? (mine ? 'me' : 'opp') : '';
@@ -204,6 +207,7 @@ export class BoardUI {
     addEventListener('keydown', (e) => { if (e.key === 'Escape') { this.cancelTarget(); this.closeMenu(); this.closeFloat(); } });
     $('#table').addEventListener('click', (e) => { if (this.suppress) { this.suppress = false; return; } const ce = e.target.closest('.card'); if (!ce) { this.closeMenu(); this.cancelTarget(); return; } this.clickCard(ce, e); });
     addEventListener('pointermove', (e) => this.moveDrag(e)); addEventListener('pointerup', (e) => this.upDrag(e));
+    $('#handBtn').onclick = () => this.viewHand();
     $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
     $('#btnMute').onclick = () => { audio.setMuted(!audio.muted); $('#btnMute').textContent = audio.muted ? '🔇' : '🔊'; };
     $('#btnMute').textContent = audio.muted ? '🔇' : '🔊';
@@ -212,6 +216,7 @@ export class BoardUI {
   clickCard(ce) {
     const uid = +ce.dataset.uid, c = this.cards.get(uid); if (!c) return; const main = this.req && this.req.kind === 'main';
     if (this.target) { if (this.target.targets.has(ce.dataset.pid) && ce.dataset.pid) { const a = this.target.byPid.get(+ce.dataset.pid); this.cancelTarget(); this.answer({ i: a }); } else this.cancelTarget(); return; }
+    if (c.spec.zone === 'discard') { this.inspect(null); return this.viewPile(c.spec.owner, 'discard'); }
     if (!c.id || c.spec.down) return; let items = [];
     if (main && c.spec.side === 'me') items = c.spec.zone === 'hand' ? this.handItems(uid) : c.spec.pk ? this.menuItems(c) : [];
     audio.sfx('draw'); this.inspect(null); this.sheet(c.id, items, c.spec.pk, c.el);
@@ -331,9 +336,20 @@ export class BoardUI {
     };
     draw(); $('.btn', m).onclick = () => { this.inspect(null); this.answer({ active, bench: [...bench] }); };
   }
+  viewHand() {
+    const v = this.view; if (!v) return; if (this.req && this.req.kind !== 'main') { this.toast('Finish your current choice first'); return; }
+    const hand = v.pl[v.me].hand; const m = this.modal(`<div class="dlg"><h3>Your hand (${hand.length})</h3><div class="sub">Tap a card to look at it or play it</div><div class="grid"></div><div class="foot2"><button class="btn">Close</button></div></div>`);
+    hand.forEach((c) => {
+      const d = D(c.id), ok = !!(this.legalIdx && this.legalIdx.hand.has(c.uid));
+      const n = mk('div', 'opt' + (ok ? ' playable-opt' : ''), `<img src="${d.img}" alt=""><small>${esc(d.name)}</small>`);
+      n.onclick = () => { const cc = this.cards.get(c.uid); const items = this.req && this.req.kind === 'main' ? this.handItems(c.uid) : []; this.closeModal(); audio.sfx('draw'); this.sheet(c.id, items, null, cc && cc.el); };
+      n.addEventListener('pointerenter', () => this.inspect(c.id)); n.addEventListener('pointerleave', () => this.inspect(null)); $('.grid', m).append(n);
+    });
+    $('.btn', m).onclick = () => this.closeModal();
+  }
   viewPile(p, which) {
     const list = this.view.pl[p][which]; const nm = this.view.pl[p].name; const m = this.modal(`<div class="dlg"><h3>${esc(nm)} — ${which === 'lost' ? 'Lost Zone' : 'Discard pile'} (${list.length})</h3><div class="grid"></div><div class="foot2"><button class="btn">Close</button></div></div>`);
-    list.slice().reverse().forEach((c) => { const d = D(c.id); const n = mk('div', 'opt', `<img src="${d.img}" loading="lazy"><small>${esc(d.name)}</small>`); n.addEventListener('pointerenter', () => this.inspect(c.id)); n.addEventListener('pointerleave', () => this.inspect(null)); $('.grid', m).append(n); });
+    list.slice().reverse().forEach((c) => { const d = D(c.id); const n = mk('div', 'opt', `<img src="${d.img}" loading="lazy"><small>${esc(d.name)}</small>`); n.onclick = () => { this.inspect(null); this.sheet(c.id, [], null, n.querySelector('img')); }; n.addEventListener('pointerenter', () => this.inspect(c.id)); n.addEventListener('pointerleave', () => this.inspect(null)); $('.grid', m).append(n); });
     if (!list.length) $('.grid', m).innerHTML = '<p style="color:#9aa0d0">Empty.</p>'; $('.btn', m).onclick = () => this.closeModal();
   }
 
