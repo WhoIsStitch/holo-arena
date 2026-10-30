@@ -208,7 +208,8 @@ export class BoardUI {
     $('#table').addEventListener('click', (e) => { if (this.suppress) { this.suppress = false; return; } const ce = e.target.closest('.card'); if (!ce) { this.closeMenu(); this.cancelTarget(); return; } this.clickCard(ce, e); });
     addEventListener('pointermove', (e) => this.moveDrag(e)); addEventListener('pointerup', (e) => this.upDrag(e));
     $('#handBtn').onclick = () => this.viewHand();
-    $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnSurrender').onclick = () => this.onSurrender && this.onSurrender(); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
+    $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnEmote').onclick = () => { const m = this.modal(`<div class="dlg emotes"><h3>Say something</h3><div class="opts"></div></div>`); ['Good luck! 🍀', 'Nice move! 👏', 'Oops 😅', 'Hmm… 🤔', 'Wow! 😮', 'GG 🤝'].forEach((t) => { const b = mk('button', 'btn', esc(t)); b.onclick = () => { this.closeModal(); this.showEmote(this.view ? this.view.pl[this.view.me].name : 'You', t); this.onEmote && this.onEmote(t); }; $('.opts', m).append(b); }); m.onclick = (e) => { if (e.target === m) this.closeModal(); }; };
+    $('#btnSurrender').onclick = () => this.onSurrender && this.onSurrender(); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
     $('#btnMute').onclick = () => { audio.setMuted(!audio.muted); $('#btnMute').textContent = audio.muted ? '🔇' : '🔊'; };
     $('#btnMute').textContent = audio.muted ? '🔇' : '🔊';
     document.addEventListener('click', (e) => { if (!e.target.closest('#popmenu') && !e.target.closest('.card')) this.closeMenu(); });
@@ -287,6 +288,7 @@ export class BoardUI {
     const m = $('#popmenu'); m.innerHTML = ''; this.renderItems(items, m);
     m.classList.remove('hidden'); const r = c.el.getBoundingClientRect(); const mw = 280, mh = m.offsetHeight; let x = r.right + 10, y = r.top; if (x + mw > innerWidth) x = r.left - mw - 10; if (y + mh > innerHeight - 10) y = innerHeight - mh - 10; m.style.left = Math.max(8, x) + 'px'; m.style.top = Math.max(8, y) + 'px';
   }
+  showEmote(name, text) { const d = mk('div', 'emote', `<b>${esc(name)}</b> ${esc(text)}`); $('#game').append(d); audio.sfx('click'); setTimeout(() => d.remove(), 3200); }
   toast(t) { const d = mk('div', '', esc(t)); $('#toast').append(d); setTimeout(() => d.remove(), 2700); }
 
   // ------------------------------------------------------------------ requests
@@ -417,7 +419,7 @@ export class BoardUI {
   }
   async coin(heads) { const w = $('#coinwrap'), c = $('#coin'); w.classList.add('on'); c.classList.remove('flip'); void c.offsetWidth; c.style.setProperty('--endx', (heads ? 1800 : 1980) + 'deg'); c.classList.add('flip'); audio.sfx('coin'); await sleep(1500); this.popText(innerWidth / 2, innerHeight / 2 + 130, heads ? 'HEADS' : 'TAILS', 'weak'); await sleep(650); w.classList.remove('on'); }
   end(won, reason) {
-    this.onGameOver && this.onGameOver(); const e = $('#end'); audio.sfx(won ? 'win' : 'lose'); e.className = won ? 'win' : 'lose';
+    this.onGameOver && this.onGameOver(won); const e = $('#end'); audio.sfx(won ? 'win' : 'lose'); e.className = won ? 'win' : 'lose';
     e.innerHTML = `<h1>${won ? 'VICTORY' : 'DEFEAT'}</h1><p>${esc(reason || '')}</p><div class="row"><button class="btn" id="again">Play again</button><button class="btn alt" id="toMenu">Main menu</button></div>`;
     if (won) { this.fx.confetti(260); setTimeout(() => this.fx.confetti(160), 1200); }
     $('#toMenu').onclick = () => this.onLeave && this.onLeave(true); $('#again').onclick = () => this.onAgain && this.onAgain();

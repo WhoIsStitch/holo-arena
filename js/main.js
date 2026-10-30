@@ -108,7 +108,10 @@ ui.onSurrender = () => {
   if (session.kind === 'guest') { session.link && session.link.send({ t: 'surrender' }); return; }
   const g = session.game; if (g && g.winner === null) { g.win(1, 'Surrender'); g.sync(); ui.answer(null); }
 };
-ui.onGameOver = () => { jdel('save'); if (session && session.kind === 'guest') jdel('guest'); };
+const getStats = () => ({ w: 0, l: 0, ...(jget('stats') || {}) });
+const showRecord = () => { const s = getStats(); $('#record').textContent = s.w + s.l ? `· ${s.w}W – ${s.l}L` : ''; }; showRecord();
+ui.onEmote = (t) => { if (!session) return; if (session.kind === 'guest') session.link && session.link.send({ t: 'emote', text: t }); else if (session.kind === 'host') session.link && session.link.send({ t: 'emote', text: t }); };
+ui.onGameOver = (won) => { const s = getStats(); won ? s.w++ : s.l++; jset('stats', s); showRecord();  jdel('save'); if (session && session.kind === 'guest') jdel('guest'); };
 
 // ---- practice vs bot
 function startPractice(demo = params.get('demo') === '1', saved = null) {
@@ -150,6 +153,7 @@ function hostRoom(saved = null) {
     if (m.t === 'join') return onJoin(link, m);
     if (link !== s.link) return;
     if (m.t === 'answer' && s.remote) s.remote.answer(m);
+    else if (m.t === 'emote') ui.showEmote(s.names[1] || 'Friend', String(m.text).slice(0, 40));
     else if (m.t === 'surrender' && s.game && s.game.winner === null) { s.game.win(0, 'Surrender'); s.game.sync(); }
     else if (m.t === 'rematch') { s.rematch.guest = true; toast(`${s.names[1]} wants a rematch`); maybeRematch(); }
   };
@@ -189,6 +193,7 @@ async function joinGame(code, info, { silent = false } = {}) {
         else if (m.t === 'ask') ui.prompt(m.req, m.view).then((answer) => s.link && s.link.send({ t: 'answer', rid: m.rid, answer }));
         else if (m.t === 'full') { toast('That room is already taken'); leaveToMenu(); }
         else if (m.t === 'rematch') toast('Your friend wants a rematch');
+        else if (m.t === 'emote') ui.showEmote(ui.view ? ui.view.pl[1 - ui.view.me].name : 'Friend', String(m.text).slice(0, 40));
         else if (m.t === 'over' && !ui.view) leaveToMenu();
       },
       onDead: () => { if (s.dead || link !== s.link) return; if (s.started && !gameOver()) reconnect(); else if (!s.started && !silent) { toast('Disconnected from the room'); leaveToMenu(); } else if (!gameOver()) reconnect(); },
