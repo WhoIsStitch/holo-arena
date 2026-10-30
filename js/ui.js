@@ -208,7 +208,7 @@ export class BoardUI {
     $('#table').addEventListener('click', (e) => { if (this.suppress) { this.suppress = false; return; } const ce = e.target.closest('.card'); if (!ce) { this.closeMenu(); this.cancelTarget(); return; } this.clickCard(ce, e); });
     addEventListener('pointermove', (e) => this.moveDrag(e)); addEventListener('pointerup', (e) => this.upDrag(e));
     $('#handBtn').onclick = () => this.viewHand();
-    $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
+    $('#btnLog').onclick = () => $('#log').classList.toggle('hidden'); $('#btnSurrender').onclick = () => this.onSurrender && this.onSurrender(); $('#btnLeave').onclick = () => this.onLeave && this.onLeave();
     $('#btnMute').onclick = () => { audio.setMuted(!audio.muted); $('#btnMute').textContent = audio.muted ? '🔇' : '🔊'; };
     $('#btnMute').textContent = audio.muted ? '🔇' : '🔊';
     document.addEventListener('click', (e) => { if (!e.target.closest('#popmenu') && !e.target.closest('.card')) this.closeMenu(); });

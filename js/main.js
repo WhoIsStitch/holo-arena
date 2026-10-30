@@ -102,6 +102,12 @@ function leaveToMenu() {
   try { wake && wake.release(); } catch (e) { /* ignore */ } history.replaceState(null, '', location.pathname);
 }
 ui.onLeave = (toMenu) => { if (toMenu || confirm('Leave the game?')) leaveToMenu(); };
+ui.onSurrender = () => {
+  if (!session || (ui.view && ui.view.winner !== null && ui.view.winner !== undefined)) return;
+  if (!confirm('Surrender this game? You will lose.')) return;
+  if (session.kind === 'guest') { session.link && session.link.send({ t: 'surrender' }); return; }
+  const g = session.game; if (g && g.winner === null) { g.win(1, 'Surrender'); g.sync(); ui.answer(null); }
+};
 ui.onGameOver = () => { jdel('save'); if (session && session.kind === 'guest') jdel('guest'); };
 
 // ---- practice vs bot
@@ -144,6 +150,7 @@ function hostRoom(saved = null) {
     if (m.t === 'join') return onJoin(link, m);
     if (link !== s.link) return;
     if (m.t === 'answer' && s.remote) s.remote.answer(m);
+    else if (m.t === 'surrender' && s.game && s.game.winner === null) { s.game.win(0, 'Surrender'); s.game.sync(); }
     else if (m.t === 'rematch') { s.rematch.guest = true; toast(`${s.names[1]} wants a rematch`); maybeRematch(); }
   };
   const onDead = (link) => {
