@@ -6,15 +6,19 @@ export const makeCode = () => Array.from({ length: 5 }, () => ALPHABET[Math.floo
 export const cleanCode = (s) => (s || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/[01OI]/g, '').slice(0, 5);
 const peerOpts = () => ({ debug: 1, config: { iceServers: ICE_SERVERS, sdpSemantics: 'unified-plan' } });
 
-/** Create a room. Calls onReady(code) once the code is registered; onConn(conn) for each incoming connection. */
-export function openHost({ onReady, onConn, onError }) {
+/** Create a room. Pass `code` to re-open an existing room (after a page reload). onReady(code) fires when registered; onConn(conn) per incoming connection. */
+export function openHost({ code: want, onReady, onConn, onError }) {
   let peer = null, tries = 0, closed = false;
   const start = () => {
     if (!window.Peer) { onError(new Error('Networking library failed to load. Check your connection and reload.')); return; }
-    const code = makeCode(); peer = new window.Peer(ROOM_PREFIX + code, peerOpts());
+    const code = want || makeCode(); peer = new window.Peer(ROOM_PREFIX + code, peerOpts());
     peer.on('open', () => onReady(code));
     peer.on('connection', (c) => onConn(c));
-    peer.on('error', (e) => { if (e.type === 'unavailable-id' && tries++ < 6) { peer.destroy(); start(); } else if (!closed) onError(e); });
+    peer.on('error', (e) => {
+      if (closed) return;
+      if (e.type === 'unavailable-id') { try { peer.destroy(); } catch (x) { /* ignore */ } if (want && tries++ < 45) setTimeout(start, 2000); else if (!want && tries++ < 6) start(); else onError(e); }
+      else onError(e);
+    });
     peer.on('disconnected', () => { if (!closed && peer && !peer.destroyed) try { peer.reconnect(); } catch (e) { /* ignore */ } });
   };
   start();
@@ -47,10 +51,11 @@ export function wrap(conn, { onMsg, onDead }) {
   return { send: (m) => { try { conn.send(m); } catch (e) { /* ignore */ } }, close: () => { dead = true; clearInterval(iv); try { conn.close(); } catch (e) { /* ignore */ } } };
 }
 
-/** Engine controller that talks to a remote player. */
+/** Engine controller that talks to a remote player. Can be re-attached to a new connection after a drop. */
 export class RemoteController {
-  constructor(link) { this.link = link; this.rid = 0; this.pending = new Map(); }
-  update(view, events) { this.link.send({ t: 'update', view, events }); }
-  ask(req, view) { return new Promise((resolve) => { const rid = ++this.rid; this.pending.set(rid, resolve); this.link.send({ t: 'ask', rid, req, view }); }); }
-  answer(m) { const r = this.pending.get(m.rid); if (r) { this.pending.delete(m.rid); r(m.answer); } }
+  constructor(link) { this.link = link; this.rid = 0; this.pending = new Map(); this.cur = null; this.lastView = null; }
+  update(view, events) { this.lastView = view; this.link.send({ t: 'update', view, events }); }
+  ask(req, view) { return new Promise((resolve) => { const rid = ++this.rid; this.pending.set(rid, resolve); this.cur = { rid, req, view }; this.lastView = view; this.link.send({ t: 'ask', rid, req, view }); }); }
+  answer(m) { const r = this.pending.get(m.rid); if (r) { this.pending.delete(m.rid); if (this.cur && this.cur.rid === m.rid) this.cur = null; r(m.answer); } }
+  rebind(link) { this.link = link; if (this.lastView) link.send({ t: 'update', view: this.lastView, events: [] }); if (this.cur && this.pending.has(this.cur.rid)) link.send({ t: 'ask', rid: this.cur.rid, req: this.cur.req, view: this.cur.view }); }
 }

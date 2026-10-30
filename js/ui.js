@@ -417,7 +417,7 @@ export class BoardUI {
   }
   async coin(heads) { const w = $('#coinwrap'), c = $('#coin'); w.classList.add('on'); c.classList.remove('flip'); void c.offsetWidth; c.style.setProperty('--endx', (heads ? 1800 : 1980) + 'deg'); c.classList.add('flip'); audio.sfx('coin'); await sleep(1500); this.popText(innerWidth / 2, innerHeight / 2 + 130, heads ? 'HEADS' : 'TAILS', 'weak'); await sleep(650); w.classList.remove('on'); }
   end(won, reason) {
-    const e = $('#end'); audio.sfx(won ? 'win' : 'lose'); e.className = won ? 'win' : 'lose';
+    this.onGameOver && this.onGameOver(); const e = $('#end'); audio.sfx(won ? 'win' : 'lose'); e.className = won ? 'win' : 'lose';
     e.innerHTML = `<h1>${won ? 'VICTORY' : 'DEFEAT'}</h1><p>${esc(reason || '')}</p><div class="row"><button class="btn" id="again">Play again</button><button class="btn alt" id="toMenu">Main menu</button></div>`;
     if (won) { this.fx.confetti(260); setTimeout(() => this.fx.confetti(160), 1200); }
     $('#toMenu').onclick = () => this.onLeave && this.onLeave(true); $('#again').onclick = () => this.onAgain && this.onAgain();

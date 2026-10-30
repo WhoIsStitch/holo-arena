@@ -29,13 +29,20 @@ export function canPay(cost, pool0) {
 
 export class Game {
   constructor({ decks, names = ['Player 1', 'Player 2'], ctl, seed = Date.now(), maxTurns = 400 }) {
-    this.decks = decks; this.names = names; this.ctl = ctl; this.rng = mulberry32(seed); this.maxTurns = maxTurns;
+    this.decks = decks; this.names = names; this.ctl = ctl; this.rs = seed >>> 0; this.maxTurns = maxTurns; this.onCheckpoint = null;
     this.uidc = 0; this.evq = []; this.turnNo = 0; this.cur = 0; this.winner = null; this.reason = ''; this.stadium = null; this.stadiumOwner = null;
     this.koOnTurn = [-9, -9]; this.pkc = 0; this.itemLock = [-9, -9];
     this.pl = [0, 1].map((i) => ({ i, name: names[i], deck: [], hand: [], discard: [], prizes: [], lost: [], active: null, bench: [], turns: 0, sup: false, en: false, ret: false, stad: false, vstar: false, flags: {} }));
   }
   // ---------------------------------------------------------------- utils
-  rnd() { return this.rng(); }
+  rnd() { let t = (this.rs = (this.rs + 0x6D2B79F5) | 0); t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+  /** everything needed to continue this game later (taken between actions) */
+  snapshot() { return JSON.parse(JSON.stringify({ rs: this.rs, uidc: this.uidc, pkc: this.pkc, turnNo: this.turnNo, cur: this.cur, stadium: this.stadium, stadiumOwner: this.stadiumOwner, koOnTurn: this.koOnTurn, itemLock: this.itemLock, names: this.names, decks: this.decks, pl: this.pl, maxTurns: this.maxTurns })); }
+  static restore(s, ctl) {
+    const g = new Game({ decks: s.decks, names: s.names, ctl, seed: 1, maxTurns: s.maxTurns });
+    Object.assign(g, { rs: s.rs, uidc: s.uidc, pkc: s.pkc, turnNo: s.turnNo, cur: s.cur, stadium: s.stadium, stadiumOwner: s.stadiumOwner, koOnTurn: s.koOnTurn, itemLock: s.itemLock, pl: JSON.parse(JSON.stringify(s.pl)) });
+    return g;
+  }
   shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(this.rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
   inst(id) { return { uid: ++this.uidc, id }; }
   inPlay(p) { const pl = this.pl[p]; return [pl.active, ...pl.bench].filter(Boolean); }
@@ -188,8 +195,12 @@ export class Game {
   win(p, reason) { if (this.winner !== null) return; this.winner = p; this.reason = reason; this.log(`${this.pl[p].name} wins! (${reason})`); this.ev('win', { p, reason }); }
 
   // ---------------------------------------------------------------- setup
-  async run() {
-    try { await this.setup(); while (this.winner === null) { if (this.turnNo >= this.maxTurns) { this.win(this.pl[0].prizes.length <= this.pl[1].prizes.length ? 0 : 1, 'Turn limit'); break; } await this.turn(); } }
+  async run({ resume = false } = {}) {
+    try {
+      if (resume) await this.sync(); else await this.setup();
+      let first = resume;
+      while (this.winner === null) { if (this.turnNo >= this.maxTurns) { this.win(this.pl[0].prizes.length <= this.pl[1].prizes.length ? 0 : 1, 'Turn limit'); break; } await this.turn(first); first = false; }
+    }
     finally { await this.sync(); }
     return this.winner;
   }
@@ -216,14 +227,18 @@ export class Game {
   }
 
   // ---------------------------------------------------------------- turn
-  async turn() {
-    const p = this.cur, me = this.pl[p]; this.turnNo++; me.turns++;
-    me.sup = me.en = me.ret = me.stad = false; me.flags = {};
-    this.inPlay(p).forEach((pk) => { pk.used = {}; });
-    this.ev('turn', { p, turnNo: this.turnNo }); this.log(`— ${me.name}'s turn —`);
-    if (!me.deck.length) { this.win(1 - p, 'Deck out'); return; }
-    this.draw(p, 1); await this.sync();
+  async turn(resume = false) {
+    const p = this.cur, me = this.pl[p];
+    if (!resume) {
+      this.turnNo++; me.turns++;
+      me.sup = me.en = me.ret = me.stad = false; me.flags = {};
+      this.inPlay(p).forEach((pk) => { pk.used = {}; });
+      this.ev('turn', { p, turnNo: this.turnNo }); this.log(`— ${me.name}'s turn —`);
+      if (!me.deck.length) { this.win(1 - p, 'Deck out'); return; }
+      this.draw(p, 1); await this.sync();
+    } else { this.ev('turn', { p, turnNo: this.turnNo }); this.log('— Game resumed —'); await this.sync(); }
     for (let n = 0; n < 80 && this.winner === null; n++) {
+      if (this.onCheckpoint) this.onCheckpoint(this.snapshot());
       const legal = this.legal(p);
       const why = {}; for (const c of this.pl[p].hand) if (!legal.some((a) => a.card === c.uid)) why[c.uid] = this.whyNot(p, c);
       const ans = await this.ask(p, { kind: 'main', legal, why });

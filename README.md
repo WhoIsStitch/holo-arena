@@ -44,6 +44,13 @@ Add `?demo=1` to the URL and press **Practice** to watch two bots play on the re
 
 Push this folder to a repository, then **Settings → Pages → Deploy from a branch → `main` / root**. The site is fully static.
 
+## Updates, saving and reconnecting
+
+- Every move is auto-saved in the host's browser. If a page is refreshed or the browser crashes, the game resumes where it was (practice games too).
+- If a player's connection drops or they refresh, they rejoin the same room automatically and carry on; the host waits up to 2 minutes.
+- Every open page checks for a new version about every 45 seconds. When one is deployed, the page saves, reloads itself, and puts you back in your game.
+- **Before each deploy run `node tools/bump.mjs`** — it stamps a new version into `version.json` and tags every script with it (this is what triggers the auto-update and stops browsers mixing old and new files).
+
 ## Networking notes
 
 - Matchmaking uses PeerJS's free public signaling server; game traffic is direct peer-to-peer. The host's browser runs the rules and sends each player only the information they're allowed to see (your opponent's hand and the deck order never leave the host's engine unmasked).

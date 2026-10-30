@@ -230,3 +230,6 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 #float { z-index: 100; }
 
 #float .facts .eff.why { color: #b45309; background: #fff7e6; border-radius: 14px; padding: 10px 14px; font-size: 13px; font-weight: 700; line-height: 1.4; }
+
+#resumeBar { max-width: 640px; margin: 10px auto 0; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; border-radius: 999px; background: #fff; box-shadow: var(--soft); font-weight: 800; color: var(--ink); } #resumeBar.hidden { display: none; }
+#netbar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 120; max-width: 92vw; padding: 10px 22px; border-radius: 999px; background: #2f3b66; color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 10px 30px rgba(20, 30, 90, .4); text-align: center; } #netbar.hidden { display: none; }
