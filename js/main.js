@@ -67,7 +67,7 @@ function showRules() {
   row('Speed', 'How long the bot thinks between moves', choice(() => r.botSpeed, (v) => { r.botSpeed = +v; save(); }, [['Fast', 250], ['Normal', 650], ['Slow', 1100]]));
   { const sel = document.createElement('select'); sel.className = 'sel'; [['random', 'Random']].concat(decks.map((d) => [d.id, d.name])).forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; if (r.botDeck === v) o.selected = true; sel.append(o); }); sel.onchange = () => { r.botDeck = sel.value; save(); }; row('Bot deck', 'Which deck the practice bot plays', sel); }
   head('Sound & display');
-  row('Music', 'Background music during games', sw(() => audio.music, (v) => audio.setMusic(v)));
+  row('Music', 'Background music during games', sw(() => audio.musicEnabled, (v) => audio.setMusic(v)));
   row('Volume', 'Master volume (0–10)', step(() => Math.round(audio.volume * 10), (v) => audio.setVolume(v / 10), 0, 10));
   row('Card size', 'Bigger or smaller cards on the board', choice(() => store.get('cardsize', '1'), (v) => { store.set('cardsize', v); ui.fit(); }, [['Small', 0.85], ['Normal', 1], ['Large', 1.15]]));
   const flag = (k, def) => sw(() => store.get(k, def) === '1', (v) => store.set(k, v ? '1' : '0'));

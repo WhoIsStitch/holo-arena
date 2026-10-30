@@ -78,7 +78,7 @@ export const audio = {
   music(name) { if (mood === name) return; mood = name; if (ctx) startMusic(name); },
   get muted() { return muted; },
   setMuted(v) { muted = v; try { localStorage.setItem('holo.muted', v ? '1' : '0'); } catch (e) {} if (master) master.gain.value = v ? 0 : vol; },
-  get music() { return musicOn; }, setMusic(v) { musicOn = v; try { localStorage.setItem('holo.music', v ? '1' : '0'); } catch (e) { /* ignore */ } if (musBus) musBus.gain.value = v ? 0.2 : 0; },
+  get musicEnabled() { return musicOn; }, setMusic(v) { musicOn = v; try { localStorage.setItem('holo.music', v ? '1' : '0'); } catch (e) { /* ignore */ } if (musBus) musBus.gain.value = v ? 0.2 : 0; },
   get volume() { return vol; }, setVolume(x) { vol = x; try { localStorage.setItem('holo.vol', String(x)); } catch (e) { /* ignore */ } if (master && !muted) master.gain.value = vol; },
 };
 ['pointerdown', 'keydown'].forEach((ev) => window.addEventListener(ev, init, { once: false, passive: true }));
