@@ -195,3 +195,8 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 }
 @media (max-height: 520px) and (orientation: landscape) { #float .fwrap { flex-direction: row; } #float .fcard.card { height: min(78vh, 300px); } #float .fpanel { width: min(54vw, 420px); max-height: 90vh; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.opt.setupopt:hover { transform: none; } .opt .seg { display: flex; gap: 6px; margin-top: 8px; }
+.opt .seg button { flex: 1; border: 0; border-radius: 999px; padding: 9px 4px; font-weight: 800; font-size: 13px; background: #eef2fb; color: var(--dim); box-shadow: var(--soft-s); }
+.opt .seg .a.sel { background: linear-gradient(#ffb25a, #ff8a2a); color: #fff; } .opt .seg .bn.sel { background: linear-gradient(#3fe0f0, #17bfd9); color: #fff; } .opt .seg button:disabled { opacity: .35; }
+.opt.setupopt.act::after, .opt.setupopt.on::after { display: none; }

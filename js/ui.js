@@ -316,12 +316,19 @@ export class BoardUI {
   pkByPid(pid) { const v = this.view; for (const i of [0, 1]) for (const pk of [v.pl[i].active, ...v.pl[i].bench]) if (pk && pk.pid === pid) return pk; return null; }
   setup(req) {
     let active = req.basics[0].key; const bench = new Set(); const b = req.basics;
-    const m = this.modal(`<div class="dlg"><h3>Choose your starting Pokémon</h3><div class="sub">Click one for your <b style="color:#ff9a3d">Active</b> spot, then click others to put them on your Bench (up to 5). They stay face-down until both players are ready.</div><div class="grid"></div><div class="foot2"><button class="btn ok">Ready!</button></div></div>`);
-    const draw = () => { const g = $('.grid', m); g.innerHTML = ''; b.forEach((o) => { const d = D(o.id); const n = mk('div', 'opt' + (o.key === active ? ' act' : bench.has(o.key) ? ' on' : ''), `<img src="${d.img}"><small>${o.key === active ? 'ACTIVE' : bench.has(o.key) ? 'Bench' : 'Hand'}</small>`);
-      n.onclick = () => { audio.sfx('click'); if (o.key === active) return; if (bench.has(o.key)) bench.delete(o.key); else if (bench.size < 5) bench.add(o.key); draw(); }; n.oncontextmenu = (e) => { e.preventDefault(); bench.delete(o.key); active = o.key; draw(); }; n.ondblclick = () => { bench.delete(o.key); active = o.key; draw(); };
-      n.addEventListener('pointerenter', () => this.inspect(o.id)); n.addEventListener('pointerleave', () => this.inspect(null)); g.append(n); }); };
-    draw(); $('.sub', m).innerHTML += '<br><small>Tip: double-click a card to make it your Active Pokémon.</small>';
-    $('.btn', m).onclick = () => this.answer({ active, bench: [...bench] });
+    const m = this.modal(`<div class="dlg"><h3>Choose your starting Pokémon</h3><div class="sub">Pick your <b style="color:#e8801a">Active</b> Pokémon, then add up to 5 to your <b style="color:#12a8c4">Bench</b>. They stay face-down until both players are ready.</div><div class="grid"></div><div class="foot2"><span class="cntr"></span><button class="btn ok">Ready!</button></div></div>`);
+    const grid = $('.grid', m), cntr = $('.cntr', m);
+    const draw = () => {
+      grid.innerHTML = ''; cntr.textContent = `Bench ${bench.size} / 5`;
+      b.forEach((o) => {
+        const d = D(o.id), isA = o.key === active, isB = bench.has(o.key);
+        const n = mk('div', 'opt setupopt' + (isA ? ' act' : isB ? ' on' : ''), `<img src="${d.img}" alt=""><small>${esc(d.name)}</small><div class="seg"><button class="a${isA ? ' sel' : ''}">Active</button><button class="bn${isB ? ' sel' : ''}"${isA ? ' disabled' : ''}>Bench</button></div>`);
+        $('.a', n).onclick = (e) => { e.stopPropagation(); audio.sfx('click'); bench.delete(o.key); active = o.key; draw(); };
+        $('.bn', n).onclick = (e) => { e.stopPropagation(); if (isA) return; audio.sfx('click'); if (isB) bench.delete(o.key); else if (bench.size < 5) bench.add(o.key); else this.toast('Your Bench is full (5)'); draw(); };
+        n.addEventListener('pointerenter', () => this.inspect(o.id)); n.addEventListener('pointerleave', () => this.inspect(null)); grid.append(n);
+      });
+    };
+    draw(); $('.btn', m).onclick = () => { this.inspect(null); this.answer({ active, bench: [...bench] }); };
   }
   viewPile(p, which) {
     const list = this.view.pl[p][which]; const nm = this.view.pl[p].name; const m = this.modal(`<div class="dlg"><h3>${esc(nm)} — ${which === 'lost' ? 'Lost Zone' : 'Discard pile'} (${list.length})</h3><div class="grid"></div><div class="foot2"><button class="btn">Close</button></div></div>`);
