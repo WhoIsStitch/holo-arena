@@ -1,6 +1,7 @@
 // All sound is synthesized with WebAudio — no audio files to download.
 let ctx = null, master = null, sfxBus = null, musBus = null, noiseBuf = null;
 let musicOn = true, vol = 0.9; try { musicOn = localStorage.getItem('holo.music') !== '0'; const v0 = parseFloat(localStorage.getItem('holo.vol')); if (!isNaN(v0)) vol = v0; } catch (e) { /* ignore */ }
+let sfxOn = true; try { sfxOn = localStorage.getItem('holo.sfx') !== '0'; } catch (e) { /* ignore */ }
 let muted = false; try { muted = localStorage.getItem('holo.muted') === '1'; } catch (e) {}
 let mood = null, timer = null, nextBar = 0, barIdx = 0;
 
@@ -72,7 +73,8 @@ function schedule() { if (!ctx || !mood) return; const m = MOODS[mood]; const le
 function startMusic(name) { mood = name; if (!ctx) return; clearInterval(timer); nextBar = ctx.currentTime + 0.1; barIdx = 0; timer = setInterval(schedule, 250); schedule(); }
 
 export const audio = {
-  init, sfx(name) { init(); try { (SFX[name] || (() => {}))(); } catch (e) { /* ignore */ } },
+  init, get sfxOn() { return sfxOn; }, setSfx(v) { sfxOn = v; try { localStorage.setItem('holo.sfx', v ? '1' : '0'); } catch (e) { /* ignore */ } },
+  sfx(name) { if (!sfxOn) return; init(); try { (SFX[name] || (() => {}))(); } catch (e) { /* ignore */ } },
   music(name) { if (mood === name) return; mood = name; if (ctx) startMusic(name); },
   get muted() { return muted; },
   setMuted(v) { muted = v; try { localStorage.setItem('holo.muted', v ? '1' : '0'); } catch (e) {} if (master) master.gain.value = v ? 0 : vol; },

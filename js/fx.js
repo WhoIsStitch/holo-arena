@@ -1,22 +1,24 @@
 // Canvas particle effects: bursts, projectiles, vortex, confetti, rings.
 export const TYPE_COLOR = { Grass: '#4cc44b', Fire: '#ff6a2c', Water: '#3ea0ff', Lightning: '#ffe02a', Psychic: '#d05cf0', Fighting: '#c9742f', Darkness: '#7a5cff', Metal: '#b8c4d8', Dragon: '#e8c040', Colorless: '#ffffff', Fairy: '#ff8fc4' };
 
+const off = () => { try { return localStorage.getItem('holo.fx') === '0'; } catch (e) { return false; } };
 export class FX {
   constructor(canvas) { this.c = canvas; this.g = canvas.getContext('2d'); this.p = []; this.rings = []; this.orbs = []; this.running = false; this.resize(); window.addEventListener('resize', () => this.resize()); }
   resize() { const r = devicePixelRatio || 1; this.c.width = innerWidth * r; this.c.height = innerHeight * r; this.r = r; }
   add(o) { this.p.push(o); if (!this.running) { this.running = true; this.last = performance.now(); requestAnimationFrame((t) => this.loop(t)); } }
   burst(x, y, color = '#fff', { n = 40, speed = 380, life = 0.8, size = 4, grav = 300, spread = Math.PI * 2, dir = 0, drag = 0.96 } = {}) {
-    for (let i = 0; i < n; i++) { const a = dir + (Math.random() - 0.5) * spread, s = speed * (0.25 + Math.random() * 0.9);
+    if (off()) return; for (let i = 0; i < n; i++) { const a = dir + (Math.random() - 0.5) * spread, s = speed * (0.25 + Math.random() * 0.9);
       this.add({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life, max: life * (0.6 + Math.random() * 0.6), size: size * (0.5 + Math.random()), color, grav, drag }); }
   }
-  ring(x, y, color = '#fff', { r = 180, life = 0.7, w = 6 } = {}) { this.rings.push({ x, y, color, r, life, max: life, w }); this.kick(); }
+  ring(x, y, color = '#fff', { r = 180, life = 0.7, w = 6 } = {}) { if (off()) return; this.rings.push({ x, y, color, r, life, max: life, w }); this.kick(); }
   kick() { if (!this.running) { this.running = true; this.last = performance.now(); requestAnimationFrame((t) => this.loop(t)); } }
   /** glowing orb flying from A to B with a particle trail, then onHit() */
-  shot(x1, y1, x2, y2, color = '#fff', { dur = 0.45, size = 14, onHit } = {}) { this.orbs.push({ x1, y1, x2, y2, color, dur, t: 0, size, onHit }); this.kick(); }
+  shot(x1, y1, x2, y2, color = '#fff', { dur = 0.45, size = 14, onHit } = {}) { if (off()) { onHit && onHit(); return; } this.orbs.push({ x1, y1, x2, y2, color, dur, t: 0, size, onHit }); this.kick(); }
   vortex(x1, y1, x2, y2, color = '#b46cff') {
+    if (off()) return;
     for (let i = 0; i < 26; i++) this.add({ x: x1 + (Math.random() - 0.5) * 70, y: y1 + (Math.random() - 0.5) * 90, tx: x2, ty: y2, life: 0.9 + Math.random() * 0.4, max: 1.2, size: 3 + Math.random() * 4, color, swirl: Math.random() * 6.28, delay: Math.random() * 0.3, type: 'vortex', x0: x1, y0: y1 });
   }
-  confetti(n = 220) { const cols = ['#ff5c7a', '#ffd166', '#52e08a', '#3ea0ff', '#c455e6', '#ff9a3d']; for (let i = 0; i < n; i++) this.add({ x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight * 0.5, vx: (Math.random() - 0.5) * 160, vy: 120 + Math.random() * 260, life: 5, max: 5, size: 5 + Math.random() * 6, color: cols[i % cols.length], grav: 120, drag: 0.995, type: 'conf', rot: Math.random() * 6, vr: (Math.random() - 0.5) * 12 }); }
+  confetti(n = 220) { if (off()) return; const cols = ['#ff5c7a', '#ffd166', '#52e08a', '#3ea0ff', '#c455e6', '#ff9a3d']; for (let i = 0; i < n; i++) this.add({ x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight * 0.5, vx: (Math.random() - 0.5) * 160, vy: 120 + Math.random() * 260, life: 5, max: 5, size: 5 + Math.random() * 6, color: cols[i % cols.length], grav: 120, drag: 0.995, type: 'conf', rot: Math.random() * 6, vr: (Math.random() - 0.5) * 12 }); }
   loop(now) {
     const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now; const g = this.g, r = this.r;
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, this.c.width, this.c.height); g.scale(r, r);

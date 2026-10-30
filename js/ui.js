@@ -6,7 +6,8 @@ import { FX, TYPE_COLOR } from './fx.js';
 const $ = (s, r = document) => r.querySelector(s);
 const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const pref = (k, d) => { try { const v = localStorage.getItem('holo.' + k); return v === null ? d : v; } catch (e) { return d; } };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms * (parseFloat(pref('speed', '1')) || 1)));
 function makeLayout(W, H, mul = 1) {
   const port = H > W * 1.05, m = 10, cx = W / 2; let ch, cw, pos, bx, stadium, gap;
   if (!port) {
@@ -44,6 +45,7 @@ export class BoardUI {
     const st = document.documentElement.style; st.setProperty('--cw', L.cw.toFixed(1) + 'px'); st.setProperty('--ch', L.ch.toFixed(1) + 'px'); st.setProperty('--fs', (L.ch * 0.085).toFixed(1) + 'px');
     const eb = $('#endTurn'); eb.style.bottom = 'auto'; eb.style.right = '10px'; eb.style.top = (L.port ? L.stadium[1] - 22 : L.pos.me.active[1] - 26) + 'px';
     const hb = $('#handBtn'); hb.style.bottom = 'auto'; if (L.port) { hb.style.top = (L.stadium[1] - 22) + 'px'; hb.style.left = '10px'; hb.style.right = 'auto'; } else { hb.style.top = (L.pos.me.active[1] + 32) + 'px'; hb.style.left = 'auto'; hb.style.right = '10px'; }
+    const rs = document.documentElement.style; rs.setProperty('--spd', pref('speed', '1')); rs.setProperty('--hue', pref('hue', '0') + 'deg');
     this.buildTable(); if (this.view) this.apply(this.view);
   }
 
@@ -160,7 +162,7 @@ export class BoardUI {
     return t;
   }
   inspect(id) {
-    const el = $('#inspector'); if (!id || this.touch) { el.classList.remove('on'); return; }
+    const el = $('#inspector'); if (!id || this.touch || pref('hover', '1') === '0') { el.classList.remove('on'); return; }
     el.innerHTML = `<img src="${D(id).img}" alt=""><div class="txt">${this.cardText(id)}</div>`; el.classList.add('on');
   }
   /** click a card: it floats up, big and holographic, with its actions beside it */
@@ -200,11 +202,12 @@ export class BoardUI {
     this.legalIdx = by;
     by.hand.forEach((_, uid) => { const c = this.cards.get(uid); if (c) c.el.classList.add('playable'); });
     by.pk.forEach((_, pid) => { const u = this.pkUid.get(pid), c = u && this.cards.get(u); if (c && c.spec.side === 'me') c.el.classList.add('canact'); });
+    if (pref('autoend', '0') === '1' && !this.req.legal.some((a) => a.t !== 'end') && this.view && this.view.turnNo > 0) { const rq = this.req; setTimeout(() => { if (this.req === rq) { this.toast('Nothing left to do — ending your turn'); this.answer({ i: rq.legal.findIndex((a) => a.t === 'end') }); } }, 1400); }
     this.hint(this.target ? 'Choose a target · Esc to cancel' : 'Your turn: click a card to play it, drag it onto a Pokémon, or click your Pokémon to attack.');
   }
   hint(t) { const h = $('#hint'); h.textContent = t; h.classList.toggle('on', !!t && /target/i.test(t)); }
   bind() {
-    $('#endTurn').onclick = () => { if (this.req && this.req.kind === 'main') { const i = this.req.legal.findIndex((a) => a.t === 'end'); this.answer({ i }); } };
+    $('#endTurn').onclick = () => { if (this.req && this.req.kind === 'main') { if (pref('confirmend', '0') === '1' && this.req.legal.some((a) => a.t === 'attack') && !confirm('You can still attack. End your turn anyway?')) return; const i = this.req.legal.findIndex((a) => a.t === 'end'); this.answer({ i }); } };
     addEventListener('keydown', (e) => { if (e.key === 'Escape') { this.cancelTarget(); this.closeMenu(); this.closeFloat(); } });
     $('#table').addEventListener('click', (e) => { if (this.suppress) { this.suppress = false; return; } const ce = e.target.closest('.card'); if (!ce) { this.closeMenu(); this.cancelTarget(); return; } this.clickCard(ce, e); });
     addEventListener('pointermove', (e) => this.moveDrag(e)); addEventListener('pointerup', (e) => this.upDrag(e));
@@ -368,7 +371,7 @@ export class BoardUI {
   center(pid) { const u = this.pkUid.get(pid), c = u && this.cards.get(u); if (!c) return null; const r = c.el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, el: c.el }; }
   posOf(side, key) { const t = this.zones[side + key]; const r = t.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
   popText(x, y, text, cls = '') { const d = mk('div', 'pop ' + cls, esc(text)); d.style.left = x + 'px'; d.style.top = y + 'px'; document.body.append(d); setTimeout(() => d.remove(), 1300); }
-  shake(big) { const s = $('#stage'); s.classList.remove('shake', 'shake-big'); void s.offsetWidth; s.classList.add(big ? 'shake-big' : 'shake'); }
+  shake(big) { if (pref('shake', '1') === '0' || pref('fx', '1') === '0') return; const s = $('#stage'); s.classList.remove('shake', 'shake-big'); void s.offsetWidth; s.classList.add(big ? 'shake-big' : 'shake'); }
   banner(text, color = '#8a5cff') { const b = $('#banner'); b.innerHTML = `<b style="--bc:${color}">${esc(text)}</b>`; setTimeout(() => (b.innerHTML = ''), 1750); }
   log(text) { const l = $('#log'); const p = mk('p', /^—/.test(text) ? 't' : /Knocked Out|wins/.test(text) ? 'k' : '', esc(text)); l.append(p); l.scrollTop = l.scrollHeight; }
   async pre(evs, v) {
@@ -425,5 +428,5 @@ export class BoardUI {
     if (won) { this.fx.confetti(260); setTimeout(() => this.fx.confetti(160), 1200); }
     $('#toMenu').onclick = () => this.onLeave && this.onLeave(true); $('#again').onclick = () => this.onAgain && this.onAgain();
   }
-  reset() { this.closeSheet(); this.cards.forEach((c) => c.el.remove()); this.cards.clear(); this.view = null; this.req = null; this.resolve = null; this.target = null; $('#log').innerHTML = ''; $('#end').className = 'hidden'; this.closeModal(); this.closeMenu(); this.queue = Promise.resolve(); this.hint(''); }
+  reset() { $('#log').classList.toggle('hidden', pref('logopen', '0') !== '1'); this.closeSheet(); this.cards.forEach((c) => c.el.remove()); this.cards.clear(); this.view = null; this.req = null; this.resolve = null; this.target = null; $('#log').innerHTML = ''; $('#end').className = 'hidden'; this.closeModal(); this.closeMenu(); this.queue = Promise.resolve(); this.hint(''); }
 }

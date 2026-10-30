@@ -249,3 +249,6 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 .rhead { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--acc-d); font-weight: 900; margin: 8px 2px 0; }
 .choice { flex: none; display: flex; gap: 4px; background: #eef2fb; padding: 3px; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(105, 125, 185, .2); } .choice button { border: 0; background: transparent; border-radius: 999px; padding: 7px 12px; font: 800 13px 'Nunito'; color: var(--dim); } .choice button.on { background: linear-gradient(#3fe0f0, #17bfd9); color: #fff; box-shadow: 0 3px 8px rgba(34, 207, 228, .4); }
 .dlg.stats { width: min(560px, 94vw); text-align: left; } .dlg.stats .rows { overflow-y: auto; } .dlg.stats h4 { margin: 10px 0 6px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--acc-d); } .dlg.stats table { width: 100%; border-collapse: collapse; font-weight: 700; font-size: 14px; } .dlg.stats td { padding: 7px 8px; border-bottom: 1px solid var(--line); } .dlg.stats td:last-child { text-align: right; color: var(--dim); }
+
+.card { transition: transform calc(.6s * var(--spd, 1)) cubic-bezier(.2, .8, .2, 1), translate .2s ease-out, scale .2s ease-out, opacity .4s; } .card.snap { transition: none; }
+#table::before { filter: hue-rotate(var(--hue, 0deg)); }

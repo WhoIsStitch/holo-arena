@@ -69,6 +69,18 @@ function showRules() {
   row('Music', 'Background music during games', sw(() => audio.music, (v) => audio.setMusic(v)));
   row('Volume', 'Master volume (0–10)', step(() => Math.round(audio.volume * 10), (v) => audio.setVolume(v / 10), 0, 10));
   row('Card size', 'Bigger or smaller cards on the board', choice(() => store.get('cardsize', '1'), (v) => { store.set('cardsize', v); ui.fit(); }, [['Small', 0.85], ['Normal', 1], ['Large', 1.15]]));
+  const flag = (k, def) => sw(() => store.get(k, def) === '1', (v) => store.set(k, v ? '1' : '0'));
+  head('Gameplay');
+  row('Auto-end turn', 'End your turn automatically when you have nothing left to do', flag('autoend', '0'));
+  row('Confirm before ending', 'Asks first if you could still attack', flag('confirmend', '0'));
+  row('Card preview on hover', 'Big preview of the card under your mouse (desktop)', flag('hover', '1'));
+  row('Game log open', 'Show the game log when a game starts', flag('logopen', '0'));
+  head('Effects');
+  row('Animation speed', 'How fast cards move and attacks play', choice(() => store.get('speed', '1'), (v) => { store.set('speed', v); ui.fit(); }, [['Fast', 0.5], ['Normal', 1], ['Slow', 1.5]]));
+  row('Particle effects', 'Sparks, rings and confetti', flag('fx', '1'));
+  row('Screen shake', 'Shake on big hits', flag('shake', '1'));
+  row('Arena colour', 'Tint of the battle arena', choice(() => store.get('hue', '0'), (v) => { store.set('hue', v); ui.fit(); }, [['Blue', 0], ['Purple', 50], ['Pink', 110], ['Green', 270]]));
+  row('Sound effects', 'Clicks, hits and fanfares', sw(() => audio.sfxOn, (v) => audio.setSfx(v)));
   m.querySelector('#rDone').onclick = () => ui.closeModal();
   m.querySelector('#rReset').onclick = () => { store.set('rules', '{}'); ui.closeModal(); showRules(); };
 }
