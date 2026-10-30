@@ -7,17 +7,17 @@ const $ = (s, r = document) => r.querySelector(s);
 const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-function makeLayout(W, H) {
+function makeLayout(W, H, mul = 1) {
   const port = H > W * 1.05, m = 10, cx = W / 2; let ch, cw, pos, bx, stadium, gap;
   if (!port) {
-    ch = Math.min(H * 0.142, (W / 10.2) / 0.716, 215); cw = ch * 0.716; gap = cw * 1.22;
+    ch = Math.min(H * 0.142 * mul, (W / 10.2) / 0.716 * Math.min(mul, 1.08), 215 * mul); cw = ch * 0.716; gap = cw * 1.22;
     const R = [0.098, 0.288, 0.512, 0.708, 0.905].map((f) => f * H), c1 = gap * 3.3;
     pos = {
       me: { active: [cx, R[2]], benchY: R[3], deck: [cx + c1, R[2]], discard: [cx + c1, R[3]], lost: [cx - c1, R[3]], prizeAt: [cx - c1, R[2]], handY: R[4] },
       op: { active: [cx, R[1]], benchY: R[0], deck: [cx - c1, R[1]], discard: [cx - c1, R[0]], lost: [cx + c1, R[0]], prizeAt: [cx + c1, R[1]], handY: -ch * 0.3 } };
     stadium = [cx + cw * 2.3, (R[1] + R[2]) / 2];
   } else {
-    cw = Math.min((W - 2 * m) / 5.45, H * 0.122 * 0.716); ch = cw / 0.716; gap = Math.max(cw * 1.04, (W - 2 * m - cw) / 4);
+    cw = Math.min((W - 2 * m) / 5.45 * Math.min(mul, 1), H * 0.122 * 0.716 * mul); ch = cw / 0.716; gap = Math.max(cw * 1.04, (W - 2 * m - cw) / 4);
     const R = [0.118, 0.238, 0.356, 0.466, 0.58, 0.70, 0.815, 0.927].map((f) => f * H), p1 = m + cw * 0.55, p2 = p1 + cw * 1.14, p3 = p2 + cw * 1.14, pz = W - m - cw * 0.55;
     pos = {
       me: { active: [cx, R[4]], benchY: R[5], deck: [p1, R[6]], discard: [p2, R[6]], lost: [p3, R[6]], prizeAt: [pz, R[6]], handY: R[7] },
@@ -39,7 +39,8 @@ export class BoardUI {
     this.bind();
   }
   fit() {
-    const L = makeLayout(innerWidth, innerHeight); this.L = L; this.cw = L.cw; this.ch = L.ch;
+    let mul = 1; try { mul = parseFloat(localStorage.getItem('holo.cardsize')) || 1; } catch (e) { /* ignore */ }
+    const L = makeLayout(innerWidth, innerHeight, mul); this.L = L; this.cw = L.cw; this.ch = L.ch;
     const st = document.documentElement.style; st.setProperty('--cw', L.cw.toFixed(1) + 'px'); st.setProperty('--ch', L.ch.toFixed(1) + 'px'); st.setProperty('--fs', (L.ch * 0.085).toFixed(1) + 'px');
     const eb = $('#endTurn'); eb.style.bottom = 'auto'; eb.style.right = '10px'; eb.style.top = (L.port ? L.stadium[1] - 22 : L.pos.me.active[1] - 26) + 'px';
     const hb = $('#handBtn'); hb.style.bottom = 'auto'; if (L.port) { hb.style.top = (L.stadium[1] - 22) + 'px'; hb.style.left = '10px'; hb.style.right = 'auto'; } else { hb.style.top = (L.pos.me.active[1] + 32) + 'px'; hb.style.left = 'auto'; hb.style.right = '10px'; }

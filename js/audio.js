@@ -1,15 +1,16 @@
 // All sound is synthesized with WebAudio — no audio files to download.
 let ctx = null, master = null, sfxBus = null, musBus = null, noiseBuf = null;
+let musicOn = true, vol = 0.9; try { musicOn = localStorage.getItem('holo.music') !== '0'; const v0 = parseFloat(localStorage.getItem('holo.vol')); if (!isNaN(v0)) vol = v0; } catch (e) { /* ignore */ }
 let muted = false; try { muted = localStorage.getItem('holo.muted') === '1'; } catch (e) {}
 let mood = null, timer = null, nextBar = 0, barIdx = 0;
 
 function init() {
   if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-  ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : 0.9; master.connect(ctx.destination);
+  ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : vol; master.connect(ctx.destination);
   const comp = ctx.createDynamicsCompressor(); comp.connect(master);
   sfxBus = ctx.createGain(); sfxBus.gain.value = 0.55; sfxBus.connect(comp);
-  musBus = ctx.createGain(); musBus.gain.value = 0.2; musBus.connect(comp);
+  musBus = ctx.createGain(); musBus.gain.value = musicOn ? 0.2 : 0; musBus.connect(comp);
   noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   if (mood) startMusic(mood);
 }
@@ -74,6 +75,8 @@ export const audio = {
   init, sfx(name) { init(); try { (SFX[name] || (() => {}))(); } catch (e) { /* ignore */ } },
   music(name) { if (mood === name) return; mood = name; if (ctx) startMusic(name); },
   get muted() { return muted; },
-  setMuted(v) { muted = v; try { localStorage.setItem('holo.muted', v ? '1' : '0'); } catch (e) {} if (master) master.gain.value = v ? 0 : 0.9; },
+  setMuted(v) { muted = v; try { localStorage.setItem('holo.muted', v ? '1' : '0'); } catch (e) {} if (master) master.gain.value = v ? 0 : vol; },
+  get music() { return musicOn; }, setMusic(v) { musicOn = v; try { localStorage.setItem('holo.music', v ? '1' : '0'); } catch (e) { /* ignore */ } if (musBus) musBus.gain.value = v ? 0.2 : 0; },
+  get volume() { return vol; }, setVolume(x) { vol = x; try { localStorage.setItem('holo.vol', String(x)); } catch (e) { /* ignore */ } if (master && !muted) master.gain.value = vol; },
 };
 ['pointerdown', 'keydown'].forEach((ev) => window.addEventListener(ev, init, { once: false, passive: true }));

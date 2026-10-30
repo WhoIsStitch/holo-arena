@@ -5,6 +5,7 @@ import { audio } from './audio.js';
 import { startBackdrop } from './fx.js';
 import { openHost, joinRoom, wrap, RemoteController, cleanCode } from './net.js';
 import { REPO_URL } from './config.js';
+import { parseDeck, validate, makeCustom } from './decklist.js';
 
 const $ = (s) => document.querySelector(s);
 const store = { get: (k, d) => { try { return localStorage.getItem('holo.' + k) ?? d; } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem('holo.' + k, v); } catch (e) { /* ignore */ } } };
@@ -13,6 +14,7 @@ const toast = (t) => { const d = document.createElement('div'); d.textContent = 
 
 const [cards, decks] = await Promise.all([fetch('data/cards.json').then((r) => r.json()), fetch('data/decks.json').then((r) => r.json())]);
 setDB(cards);
+decks.push(...JSON.parse(store.get('customDecks', '[]') || '[]'));
 const ui = new BoardUI();
 let deckId = store.get('deck', decks[0].id); if (!decks.find((d) => d.id === deckId)) deckId = decks[0].id;
 const deckById = (id) => decks.find((d) => d.id === id);
@@ -25,6 +27,8 @@ if (REPO_URL) $('#gh').href = REPO_URL; else $('#gh').style.display = 'none';
 setTimeout(() => document.querySelector('.deck.sel') && document.querySelector('.deck.sel').scrollIntoView({ inline: 'center', block: 'nearest' }), 300);
 const covers = decks.map((d) => cards[d.cover].img);
 startBackdrop($('#bgfx'), covers);
+function renderDecks() {
+$('#decks').innerHTML = '';
 decks.forEach((d) => {
   const el = document.createElement('div'); el.className = 'deck'; el.dataset.id = d.id; el.style.setProperty('--c1', d.colors[0]); el.style.setProperty('--c2', d.colors[1]);
   el.innerHTML = `<div class="pack"><span class="tick">✔</span><button class="viewdeck">Cards</button><img src="${cards[d.cover].img}" alt=""><div class="ribbon">${d.name}</div></div><small>${d.tag}</small>`;
@@ -32,8 +36,11 @@ decks.forEach((d) => {
   el.onclick = () => { deckId = d.id; store.set('deck', d.id); sync(); audio.sfx('click'); el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
   $('#decks').append(el);
 });
-const sync = () => document.querySelectorAll('.deck').forEach((e) => e.classList.toggle('sel', e.dataset.id === deckId)); sync();
-const DEFAULT_RULES = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1 };
+const add = document.createElement('div'); add.className = 'deck addtile'; add.innerHTML = '<div class="pack"><div class="plus">+</div><div class="ribbon">Import deck</div></div><small>Paste a deck list</small>'; add.onclick = () => importDeck(); $('#decks').append(add); sync();
+}
+const sync = () => document.querySelectorAll('.deck:not(.addtile)').forEach((e) => e.classList.toggle('sel', e.dataset.id === deckId));
+renderDecks();
+const DEFAULT_RULES = { prizes: 6, hand: 7, vAsEx: false, noDeckOut: false, firstTurn: false, energyPerTurn: 1, botLevel: 'normal', botSpeed: 650 };
 const getRules = () => ({ ...DEFAULT_RULES, ...(JSON.parse(store.get('rules', '{}') || '{}')) });
 function rulesText(r) {
   const out = []; if (r.vAsEx) out.push('V counts as ex'); if (r.noDeckOut) out.push("no deck-out loss"); if (r.firstTurn) out.push('attack/Supporter allowed turn 1');
@@ -41,26 +48,50 @@ function rulesText(r) {
 }
 function showRules() {
   const r = getRules(), save = () => store.set('rules', JSON.stringify(r));
-  const m = ui.modal(`<div class="dlg rules"><h3>House rules</h3><div class="sub">Applies to games you start (Practice, or a room you host). Friends see them when the game begins.</div><div class="rows"></div><div class="foot2"><button class="btn" id="rReset">Reset</button><button class="btn ok" id="rDone">Done</button></div></div>`);
+  const m = ui.modal(`<div class="dlg rules"><h3>Settings</h3><div class="sub">House rules apply to games you start (Practice, or a room you host). Friends see them when the game begins.</div><div class="rows"></div><div class="foot2"><button class="btn" id="rReset">Reset rules</button><button class="btn ok" id="rDone">Done</button></div></div>`);
   const rows = m.querySelector('.rows');
-  const tog = (key, label, hint) => { const row = document.createElement('div'); row.className = 'rrow'; row.innerHTML = `<div><b>${label}</b><small>${hint}</small></div><button class="sw${r[key] ? ' on' : ''}" aria-label="${label}"></button>`; row.querySelector('.sw').onclick = (ev) => { r[key] = !r[key]; ev.currentTarget.classList.toggle('on', r[key]); save(); audio.sfx('click'); }; rows.append(row); };
-  const num = (key, label, hint, lo, hi) => { const row = document.createElement('div'); row.className = 'rrow'; row.innerHTML = `<div><b>${label}</b><small>${hint}</small></div><div class="step"><button>−</button><span>${r[key]}</span><button>+</button></div>`; const [a, , b] = row.querySelectorAll('.step > *'); const span = row.querySelector('span'); a.onclick = () => { r[key] = Math.max(lo, r[key] - 1); span.textContent = r[key]; save(); }; b.onclick = () => { r[key] = Math.min(hi, r[key] + 1); span.textContent = r[key]; save(); }; rows.append(row); };
-  tog('vAsEx', 'V counts as ex', 'Cards that affect Pokémon ex (Black Belt\'s Training, Maximum Belt…) also affect V, VSTAR and VMAX');
-  tog('noDeckOut', "Don't lose when the deck is empty", 'You just skip your draw instead of losing the game');
-  tog('firstTurn', 'No first-turn limits', 'The first player may attack and play a Supporter on turn 1');
-  num('prizes', 'Prize cards', 'How many each player sets aside (fewer = shorter game)', 1, 6);
-  num('hand', 'Starting hand', 'Cards drawn at the start', 5, 10);
-  num('energyPerTurn', 'Energy attachments per turn', 'From your hand each turn', 1, 3);
+  const head = (t) => { const d = document.createElement('div'); d.className = 'rhead'; d.textContent = t; rows.append(d); };
+  const row = (label, hint, ctl) => { const x = document.createElement('div'); x.className = 'rrow'; x.innerHTML = `<div><b>${label}</b><small>${hint}</small></div>`; x.append(ctl); rows.append(x); return x; };
+  const sw = (get, set) => { const b = document.createElement('button'); b.className = 'sw' + (get() ? ' on' : ''); b.onclick = () => { set(!get()); b.classList.toggle('on', get()); audio.sfx('click'); }; return b; };
+  const step = (get, set, lo, hi, fmt = (v) => v) => { const d = document.createElement('div'); d.className = 'step'; const a = document.createElement('button'), s = document.createElement('span'), p = document.createElement('button'); a.textContent = '−'; p.textContent = '+'; s.textContent = fmt(get()); a.onclick = () => { set(Math.max(lo, get() - 1)); s.textContent = fmt(get()); }; p.onclick = () => { set(Math.min(hi, get() + 1)); s.textContent = fmt(get()); }; d.append(a, s, p); return d; };
+  const choice = (get, set, opts) => { const d = document.createElement('div'); d.className = 'choice'; opts.forEach(([label, val]) => { const b = document.createElement('button'); b.textContent = label; b.className = String(get()) === String(val) ? 'on' : ''; b.onclick = () => { set(val); [...d.children].forEach((x) => x.classList.remove('on')); b.classList.add('on'); audio.sfx('click'); }; d.append(b); }); return d; };
+  head('House rules');
+  row('V counts as ex', "Cards that affect Pokémon ex (Black Belt's Training, Maximum Belt…) also affect V, VSTAR and VMAX", sw(() => r.vAsEx, (v) => { r.vAsEx = v; save(); }));
+  row("Don't lose when the deck is empty", 'You just skip your draw instead of losing the game', sw(() => r.noDeckOut, (v) => { r.noDeckOut = v; save(); }));
+  row('No first-turn limits', 'The first player may attack and play a Supporter on turn 1', sw(() => r.firstTurn, (v) => { r.firstTurn = v; save(); }));
+  row('Prize cards', 'How many each player sets aside (fewer = shorter game)', step(() => r.prizes, (v) => { r.prizes = v; save(); }, 1, 6));
+  row('Starting hand', 'Cards drawn at the start', step(() => r.hand, (v) => { r.hand = v; save(); }, 5, 10));
+  row('Energy attachments per turn', 'From your hand each turn', step(() => r.energyPerTurn, (v) => { r.energyPerTurn = v; save(); }, 1, 3));
+  head('Practice bot');
+  row('Difficulty', 'Easy makes random moves some of the time', choice(() => r.botLevel, (v) => { r.botLevel = v; save(); }, [['Easy', 'easy'], ['Normal', 'normal']]));
+  row('Speed', 'How long the bot thinks between moves', choice(() => r.botSpeed, (v) => { r.botSpeed = +v; save(); }, [['Fast', 250], ['Normal', 650], ['Slow', 1100]]));
+  head('Sound & display');
+  row('Music', 'Background music during games', sw(() => audio.music, (v) => audio.setMusic(v)));
+  row('Volume', 'Master volume (0–10)', step(() => Math.round(audio.volume * 10), (v) => audio.setVolume(v / 10), 0, 10));
+  row('Card size', 'Bigger or smaller cards on the board', choice(() => store.get('cardsize', '1'), (v) => { store.set('cardsize', v); ui.fit(); }, [['Small', 0.85], ['Normal', 1], ['Large', 1.15]]));
   m.querySelector('#rDone').onclick = () => ui.closeModal();
   m.querySelector('#rReset').onclick = () => { store.set('rules', '{}'); ui.closeModal(); showRules(); };
+}
+function importDeck() {
+  const m = ui.modal(`<div class="dlg rules"><h3>Import a deck</h3><div class="sub">Paste a deck list (like <b>4 Comfey</b>, one card per line — set codes are ignored). Only cards in this game's card pool can be used.</div><input id="dName" maxlength="30" placeholder="Deck name" style="width:100%"><textarea id="dText" placeholder="4 Comfey&#10;3 Giratina V&#10;4 Nest Ball&#10;4 Basic Water Energy…"></textarea><div id="dErr" class="derr"></div><div class="foot2"><button class="btn" id="dCancel">Cancel</button><button class="btn ok" id="dSave">Save deck</button></div></div>`);
+  m.querySelector('#dCancel').onclick = () => ui.closeModal();
+  m.querySelector('#dSave').onclick = () => {
+    const { list, unknown } = parseDeck(m.querySelector('#dText').value, cards), v = validate(list, cards), errs = [...v.errors];
+    if (unknown.length) errs.unshift(`Not in the card pool: ${[...new Set(unknown)].slice(0, 6).join(', ')}${unknown.length > 6 ? '…' : ''}`);
+    if (!list.length) errs.unshift('Paste some cards first');
+    if (errs.length) { m.querySelector('#dErr').innerHTML = errs.map((x) => `• ${x}`).join('<br>'); return; }
+    const d = makeCustom(m.querySelector('#dName').value.trim(), list, cards); decks.push(d); const all = JSON.parse(store.get('customDecks', '[]') || '[]'); all.push(d); store.set('customDecks', JSON.stringify(all));
+    deckId = d.id; store.set('deck', d.id); ui.closeModal(); renderDecks(); toast(`Saved "${d.name}"`);
+  };
 }
 function viewDeck(d) {
   const counts = d.list.map(([id, n]) => ({ id, n, c: cards[id] })); const kind = (x) => (x.c.cat === 'Pokemon' ? 0 : x.c.cat === 'Trainer' ? 1 : 2);
   counts.sort((a, b) => kind(a) - kind(b) || a.c.name.localeCompare(b.c.name));
   const tot = [0, 0, 0]; counts.forEach((x) => (tot[kind(x)] += x.n));
-  const m = ui.modal(`<div class="dlg"><h3>${d.name}</h3><div class="sub">${d.count} cards · ${tot[0]} Pokémon · ${tot[1]} Trainers · ${tot[2]} Energy — tap a card to look closer</div><div class="grid"></div><div class="foot2"><button class="btn">Close</button></div></div>`);
+  const m = ui.modal(`<div class="dlg"><h3>${d.name}</h3><div class="sub">${d.count} cards · ${tot[0]} Pokémon · ${tot[1]} Trainers · ${tot[2]} Energy — tap a card to look closer</div><div class="grid"></div><div class="foot2"><button class="btn">Close</button>${d.custom ? '<button class="btn" id="delDeck">Delete deck</button>' : ''}</div></div>`);
   counts.forEach((x) => { const n = document.createElement('div'); n.className = 'opt'; n.innerHTML = `<img src="${x.c.img}" alt=""><small><b>×${x.n}</b> ${x.c.name}</small>`; n.onclick = () => ui.sheet(x.id, [], null, n.querySelector('img')); m.querySelector('.grid').append(n); });
   m.querySelector('.btn').onclick = () => ui.closeModal();
+  const del = m.querySelector('#delDeck'); if (del) del.onclick = () => { if (!confirm(`Delete "${d.name}"?`)) return; decks.splice(decks.indexOf(d), 1); store.set('customDecks', JSON.stringify(decks.filter((x) => x.custom))); if (deckId === d.id) { deckId = decks[0].id; store.set('deck', deckId); } ui.closeModal(); renderDecks(); };
 }
 document.getElementById('btnRules').onclick = () => { audio.sfx('click'); showRules(); };
 const myName = () => { const n = ($('#name').value || '').trim().slice(0, 16) || 'Trainer'; store.set('name', $('#name').value.trim()); return n; };
@@ -111,7 +142,7 @@ ui.onSurrender = () => {
 const getStats = () => ({ w: 0, l: 0, ...(jget('stats') || {}) });
 const showRecord = () => { const s = getStats(); $('#record').textContent = s.w + s.l ? `· ${s.w}W – ${s.l}L` : ''; }; showRecord();
 ui.onEmote = (t) => { if (!session) return; if (session.kind === 'guest') session.link && session.link.send({ t: 'emote', text: t }); else if (session.kind === 'host') session.link && session.link.send({ t: 'emote', text: t }); };
-ui.onGameOver = (won) => { const s = getStats(); won ? s.w++ : s.l++; jset('stats', s); showRecord();  jdel('save'); if (session && session.kind === 'guest') jdel('guest'); };
+ui.onGameOver = (won) => { const s = getStats(); won ? s.w++ : s.l++; jset('stats', s); showRecord(); { const hist = jget('history') || []; const mine = session && (session.kind === 'guest' ? session.info.deck : session.deckIds && session.deckIds[0]); hist.unshift({ t: Date.now(), won: !!won, deck: mine || '', opp: ui.view ? ui.view.pl[1 - ui.view.me].name : '', turns: ui.view ? ui.view.turnNo : 0, kind: session ? session.kind : '' }); jset('history', hist.slice(0, 40)); }  jdel('save'); if (session && session.kind === 'guest') jdel('guest'); };
 
 // ---- practice vs bot
 function startPractice(demo = params.get('demo') === '1', saved = null) {
@@ -119,7 +150,7 @@ function startPractice(demo = params.get('demo') === '1', saved = null) {
   if (saved) { me = deckById(saved.deckIds[0]); foe = deckById(saved.deckIds[1]); names = saved.names; }
   else { me = deckById(deckId); const others = decks.filter((d) => d.id !== deckId); foe = others[Math.floor(Math.random() * others.length)] || me; names = [myName(), `Bot · ${foe.name.split(' — ')[0]}`]; }
   s.names = names; s.deckIds = [me.id, foe.id]; preload(me.list); preload(foe.list); enterGame();
-  const ctl = [demo ? { update: humanCtl.update, ask: (r, v) => new Bot({ delay: 500 }).ask(r, v) } : humanCtl, new Bot({ delay: 650 })];
+  const ctl = [demo ? { update: humanCtl.update, ask: (r, v) => new Bot({ delay: 500 }).ask(r, v) } : humanCtl, new Bot({ delay: getRules().botSpeed, level: getRules().botLevel })];
   const game = saved ? Game.restore(saved.snap, ctl) : new Game({ decks: [expandDeck(me.list), expandDeck(foe.list)], names, ctl, seed: Date.now(), rules: getRules() });
   ui.onAgain = () => startPractice(false); runGame(s, game, !!saved);
 }
@@ -140,9 +171,10 @@ function hostRoom(saved = null) {
     p.then(() => s.link && s.link.send({ t: 'over' }));
   };
   ui.onAgain = () => { s.rematch.me = true; if (!s.link) return toast('Your friend left the room'); $('#again').textContent = 'Waiting for friend…'; $('#again').disabled = true; s.link.send({ t: 'rematch' }); maybeRematch(); };
+  const cleanCustom = (x) => { try { const list = (x.list || []).filter(([id, n]) => cards[id] && n > 0 && n <= 60).map(([id, n]) => [id, n | 0]); const ok = validate(list, cards).ok; return ok ? { id: String(x.id).slice(0, 20), name: String(x.name).slice(0, 30), list, custom: true } : null; } catch (e) { return null; } };
   const onJoin = (link, m) => {
     if (s.token && m.token !== s.token) { link.send({ t: 'full' }); setTimeout(() => link.close(), 300); return; }          // somebody else
-    if (!s.token) { s.token = m.token || 't' + Math.random().toString(36).slice(2); s.names[1] = String(m.name || 'Friend').slice(0, 16); s.guestDeck = deckById(m.deck) || decks[0]; s.deckIds[1] = s.guestDeck.id; }
+    if (!s.token) { s.token = m.token || 't' + Math.random().toString(36).slice(2); s.names[1] = String(m.name || 'Friend').slice(0, 16); s.guestDeck = deckById(m.deck) || cleanCustom(m.custom) || decks[0]; s.deckIds[1] = s.guestDeck.id; }
     if (s.link && s.link !== link) { try { s.link.close(); } catch (e) { /* ignore */ } }
     s.link = link; clearTimeout(s.waitT); netbar('');
     if (s.game && s.remote && s.game.winner === null) { link.send({ t: 'start', names: s.names, you: 1, deck: s.deckIds[0], resumed: true }); s.remote.rebind(link); toast(`${s.names[1]} reconnected`); return; }   // live game: just re-attach
@@ -198,7 +230,7 @@ async function joinGame(code, info, { silent = false } = {}) {
       },
       onDead: () => { if (s.dead || link !== s.link) return; if (s.started && !gameOver()) reconnect(); else if (!s.started && !silent) { toast('Disconnected from the room'); leaveToMenu(); } else if (!gameOver()) reconnect(); },
     });
-    s.link = link; link.send({ t: 'join', name: info.name, deck: info.deck, token: info.token });
+    s.link = link; link.send({ t: 'join', name: info.name, deck: info.deck, custom: info.custom || null, token: info.token });
   };
   const reconnect = async () => {
     netbar('Connection lost — reconnecting to your game…'); const until = Date.now() + 150000;
@@ -210,7 +242,7 @@ async function joinGame(code, info, { silent = false } = {}) {
 $('#btnJoin').onclick = async () => {
   const code = cleanCode($('#code').value); if (code.length !== 5) { toast('Enter the 5-character room code'); $('#code').focus(); return; }
   audio.sfx('click'); const btn = $('#btnJoin'); btn.disabled = true; $('#joinMsg').textContent = 'Connecting…'; preload(deckById(deckId).list);
-  try { await joinGame(code, { name: myName(), deck: deckId, token: 't' + Math.random().toString(36).slice(2) + Date.now().toString(36) }); }
+  try { await joinGame(code, { name: myName(), deck: deckId, custom: deckById(deckId).custom ? deckById(deckId) : null, token: 't' + Math.random().toString(36).slice(2) + Date.now().toString(36) }); }
   catch (e) { toast(e.message); session = null; role.set(null); jdel('guest'); }
   btn.disabled = false; $('#joinMsg').textContent = 'Enter the 5-character room code';
 };
@@ -244,6 +276,16 @@ function updateNow() {
 const checkVer = async () => { const v = await getVer(); if (v && appVer && v !== appVer) updateNow(); };
 setInterval(checkVer, 45000); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkVer(); });
 
+function showStats() {
+  const s = getStats(), hist = jget('history') || [], by = {};
+  hist.forEach((g) => { const k = g.deck || '?'; (by[k] = by[k] || { w: 0, l: 0 })[g.won ? 'w' : 'l']++; });
+  const nm = (id) => (deckById(id) || { name: id || 'Unknown deck' }).name;
+  const rowsHtml = Object.entries(by).map(([k, v]) => `<tr><td>${nm(k)}</td><td>${v.w}W – ${v.l}L</td></tr>`).join('') || '<tr><td colspan="2">No games yet</td></tr>';
+  const recent = hist.slice(0, 10).map((g) => `<tr><td>${g.won ? '✅ Win' : '❌ Loss'}</td><td>${nm(g.deck)} vs ${g.opp || '—'}</td><td>${g.turns} turns</td></tr>`).join('');
+  const m = ui.modal(`<div class="dlg stats"><h3>Your record</h3><div class="sub">${s.w} wins · ${s.l} losses${s.w + s.l ? ` · ${Math.round(s.w / (s.w + s.l) * 100)}% win rate` : ''}</div><div class="rows"><h4>By deck</h4><table>${rowsHtml}</table>${recent ? `<h4>Recent games</h4><table>${recent}</table>` : ''}</div><div class="foot2"><button class="btn" id="sClear">Clear stats</button><button class="btn ok" id="sDone">Close</button></div></div>`);
+  m.querySelector('#sDone').onclick = () => ui.closeModal(); m.querySelector('#sClear').onclick = () => { if (confirm('Clear all stats?')) { jdel('stats'); jdel('history'); showRecord(); ui.closeModal(); } };
+}
+document.getElementById('btnStats').onclick = () => { audio.sfx('click'); showStats(); };
 window.__ui = ui;
 window.__dbg = { get session() { return session; }, updateNow };
 if (params.get('auto') === '1') setTimeout(() => startPractice(true), 600);   // test helper: bots play both sides

@@ -14,7 +14,7 @@ const TRAINER_SCORE = { "Professor's Research": 66, "Colress's Experiment": 70, 
 const PRIO = ['Haxorus', 'Bloodmoon Ursaluna ex', 'Cornerstone Mask Ogerpon ex', 'Fraxure', 'Giratina VSTAR', 'Charizard ex', 'Pidgeot ex', 'Miraidon ex', 'Giratina V', 'Iron Hands ex', 'Rare Candy', 'Raikou V'];
 
 export class Bot {
-  constructor({ delay = 0 } = {}) { this.delay = delay; }
+  constructor({ delay = 0, level = 'normal' } = {}) { this.delay = delay; this.level = level; }
   update() {}
   async ask(req, view, p) {
     if (this.delay) await new Promise((r) => setTimeout(r, this.delay));
@@ -40,6 +40,7 @@ export class Bot {
     const L = req.legal, me = this.me(v);
     const canAttack = L.some((a) => a.t === 'attack');
     const handCard = (uid) => me.hand.find((c) => c.uid === uid);
+    if (this.level === 'easy' && Math.random() < 0.3) { const pool = L.map((a, i) => i).filter((i) => L[i].t !== 'end'); if (pool.length) return { i: pool[Math.floor(Math.random() * pool.length)] }; }
     let best = -1, bi = L.length - 1, bestAtk = null, atkScore = 0;
     L.forEach((a, i) => {
       let s = 0; const c = a.card ? handCard(a.card) : null; const nm = c ? D(c.id).name : '';
