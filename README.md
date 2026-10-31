@@ -77,3 +77,7 @@ js/audio.js fx.js   synthesized sound + particles
 data/               cards.json, decks.json
 tools/              simulation and data scripts
 ```
+
+## 3D arena
+
+The board is drawn in WebGL (Three.js, loaded from jsDelivr on demand) underneath the existing DOM cards, which stay as the click and drag targets. Settings > Effects > Graphics picks Auto, High, Medium or Lite (the flat 2D board). Auto uses Medium on phones and drops a level if the frame rate stays low. Lite is used automatically if WebGL or the CDN is unavailable. Code: `js/stage3d.js`; standalone card demo: `proto3d.html`.

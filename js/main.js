@@ -16,6 +16,12 @@ const [cards, decks] = await Promise.all([fetch('data/cards.json').then((r) => r
 setDB(cards);
 decks.push(...JSON.parse(store.get('customDecks', '[]') || '[]'));
 const ui = new BoardUI();
+// 3D arena is optional: loaded on demand, and any failure (no WebGL, CDN blocked) falls back to the 2D board ("Lite").
+const stage = { s: null, async refresh() {
+  const mode = store.get('gfx', 'auto'); if (mode === 'lite') { this.s && this.s.disable(); return; }
+  try { if (!this.s) { const m = await import('./stage3d.js'); this.s = new m.Stage3D(ui); } this.s.enable(mode); }
+  catch (e) { console.warn('3D arena unavailable, using Lite mode', e); this.s && this.s.disable(); } } };
+window.__stage = stage;
 let deckId = store.get('deck', decks[0].id); if (!decks.find((d) => d.id === deckId)) deckId = decks[0].id;
 const deckById = (id) => decks.find((d) => d.id === id);
 let session = null;                                   // { kind, game?, host?, link?, ... }
@@ -79,6 +85,8 @@ function showRules() {
   row('Vibrate on your turn', 'Short buzz when it becomes your turn (phones)', flag('vibrate', '0'));
   head('Effects');
   row('Animation speed', 'How fast cards move and attacks play', choice(() => store.get('speed', '1'), (v) => { store.set('speed', v); ui.fit(); }, [['Fast', 0.5], ['Normal', 1], ['Slow', 1.5]]));
+  row('Graphics', '3D arena quality. Auto picks for your device; Lite is the flat 2D board', choice(() => store.get('gfx', 'auto'), (v) => { store.set('gfx', v); stage.refresh(); }, [['Auto', 'auto'], ['High', 'high'], ['Medium', 'medium'], ['Lite', 'lite']]));
+  row('Reduce motion', 'No camera moves or flashing; text appears at once', flag('reduce', '0'));
   row('Particle effects', 'Sparks, rings and confetti', flag('fx', '1'));
   row('Screen shake', 'Shake on big hits', flag('shake', '1'));
   row('Arena colour', 'Tint of the battle arena', choice(() => store.get('hue', '0'), (v) => { store.set('hue', v); ui.fit(); }, [['Blue', 0], ['Purple', 50], ['Pink', 110], ['Green', 270]]));
@@ -156,7 +164,7 @@ function runGame(s, game, resume) {
 const humanCtl = { update: (v, e) => ui.enqueue(v, e), ask: (r, v) => ui.prompt(r, v) };
 async function wakeLock() { try { if ('wakeLock' in navigator) wake = await navigator.wakeLock.request('screen'); } catch (e) { /* ignore */ } }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && session) wakeLock(); });
-function enterGame() { ui.reset(); show('game'); audio.music('battle'); wakeLock(); ui.fit(); }
+function enterGame() { ui.reset(); show('game'); stage.refresh(); audio.music('battle'); wakeLock(); ui.fit(); }
 function leaveToMenu() {
   if (session) { try { session.host && session.host.close(); session.link && session.link.close(); session.peer && session.peer.destroy(); } catch (e) { /* ignore */ } session.dead = true; clearTimeout(session.waitT); clearTimeout(session.saveT); }
   session = null; role.set(null); jdel('save'); jdel('guest'); netbar(''); ui.reset(); show('menu'); audio.music('menu'); showResumeBar();

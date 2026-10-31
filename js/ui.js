@@ -46,7 +46,7 @@ export class BoardUI {
     const eb = $('#endTurn'); eb.style.bottom = 'auto'; eb.style.right = '10px'; eb.style.top = (L.port ? L.stadium[1] - 22 : L.pos.me.active[1] - 26) + 'px';
     const hb = $('#handBtn'); hb.style.bottom = 'auto'; if (L.port) { hb.style.top = (L.stadium[1] - 22) + 'px'; hb.style.left = '10px'; hb.style.right = 'auto'; } else { hb.style.top = (L.pos.me.active[1] + 32) + 'px'; hb.style.left = 'auto'; hb.style.right = '10px'; }
     const rs = document.documentElement.style; rs.setProperty('--spd', pref('speed', '1')); rs.setProperty('--hue', pref('hue', '0') + 'deg');
-    this.buildTable(); if (this.view) this.apply(this.view);
+    this.buildTable(); if (this.view) this.apply(this.view); this.hook && this.hook({ type: 'fit' }, 'fit');
   }
 
   // ------------------------------------------------------------------ static table
@@ -385,6 +385,7 @@ export class BoardUI {
   log(text) { const l = $('#log'); const p = mk('p', /^—/.test(text) ? 't' : /Knocked Out|wins/.test(text) ? 'k' : '', esc(text)); l.append(p); l.scrollTop = l.scrollHeight; }
   async pre(evs, v) {
     for (const e of evs) {
+      this.hook && this.hook(e, 'pre', v);
       if (e.type === 'attack') {
         const c = this.center(e.pid); if (!c) continue; const mine = this.view && this.view.pl && false; const def = this.defenderPos(e.p); const col = TYPE_COLOR[(e.types || ['Colorless'])[0]] || '#fff';
         audio.sfx(e.dmg ? 'zap' : 'ability'); c.el.style.setProperty('--ly', (c.y > innerHeight / 2 ? -70 : 70) + 'px'); c.el.classList.add('lunge'); setTimeout(() => c.el.classList.remove('lunge'), 560);
@@ -401,6 +402,7 @@ export class BoardUI {
   async post(evs, v) {
     let wait = 0;
     for (const e of evs) {
+      this.hook && this.hook(e, 'post', v);
       switch (e.type) {
         case 'log': this.log(e.text); break;
         case 'draw': audio.sfx('draw'); wait = Math.max(wait, 250); break;

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Holo Arena 3D prototype</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1026; overflow: hidden; font: 14px system-ui, sans-serif; color: #fff; }
+  canvas { width: 100vw; height: 100vh; display: block; touch-action: none; }
+  #hud { position: fixed; left: 12px; top: 12px; display: flex; gap: 8px; align-items: center; }
+  #hud button { background: #ffffff22; color: #fff; border: 1px solid #ffffff44; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  #hud button.on { background: #ff6b86; border-color: #ff6b86; }
+  #fps { opacity: .8; min-width: 56px; }
+  #err { position: fixed; left: 12px; bottom: 12px; color: #ff9aa8; }
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <button data-t="low">Low</button><button data-t="medium">Medium</button><button data-t="high" class="on">High</button>
+  <span id="fps">-- fps</span>
+</div>
+<div id="err"></div>
+<script type="module">
+import { start } from './js/scene3d.js';
+const q = new URLSearchParams(location.search);
+const phone = matchMedia('(pointer:coarse)').matches;
+const tier = q.get('tier') || (phone ? 'medium' : 'high');
+const cards = await (await fetch('./data/cards.json')).json();
+const id = q.get('card') || 'swsh11-079';
+try {
+  const app = start(document.getElementById('c'), {
+    cardImg: cards[id].img, backImg: './assets/cardback.jpg', tier,
+    foil: /Holo|Rare|ACE|Radiant|Double|Ultra/.test(cards[id].rarity || '') ? 1 : 0.3,
+    onFps: (n) => { document.getElementById('fps').textContent = n + ' fps'; },
+  });
+  const btns = [...document.querySelectorAll('#hud button')];
+  const mark = (t) => btns.forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+  mark(tier); app.setTier(tier);
+  btns.forEach((b) => b.onclick = () => { app.setTier(b.dataset.t); mark(b.dataset.t); });
+  window.__app = app;
+} catch (e) { document.getElementById('err').textContent = 'WebGL failed: ' + e.message; console.error(e); }
+</script>
+</body>
+</html>

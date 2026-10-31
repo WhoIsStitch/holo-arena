@@ -256,3 +256,69 @@ button.tile:hover { transform: translateY(-4px); } button.tile:active { transfor
 .shelf h3 .link { color: #fff; text-decoration: none; background: rgba(255, 255, 255, .22); border-radius: 999px; padding: 3px 12px; margin-left: 8px; font-size: 12px; letter-spacing: .06em; }
 .sel { flex: none; max-width: 190px; border: 0; border-radius: 999px; padding: 9px 14px; font: 800 13px 'Nunito'; color: var(--ink); background: #eef2fb; box-shadow: var(--soft-s); }
 #end p.sum { font-size: 16px; }
+
+/* ============ 3D arena (js/stage3d.js). Cards stay in the DOM as hit targets; the WebGL canvas draws them. ============ */
+.r3d { background: #070a1c; }
+.r3d #table::before, .r3d #table::after, .r3d .pile { display: none; }
+.r3d .zone { background: none !important; border-color: transparent !important; box-shadow: none !important; }
+.r3d .zone.lost::before { display: none; }
+.r3d .zone > span:first-child { color: rgba(205, 220, 255, .8); text-shadow: 0 1px 6px #000a; }
+.r3d .card .face { opacity: 0; }
+.r3d .card.flip .inner { animation: none; }
+.r3d .card .ov .hp { box-shadow: 0 2px 8px #0008; }
+.r3d .card.hit .inner, .r3d .card.dissolve { animation: none; }
+.r3d .card.dissolve { opacity: 0; transition: opacity .9s cubic-bezier(.4, 0, .6, 1), transform .9s; transform: translate(var(--tx), var(--ty)) scale(.8) !important; }
+.r3d #hint, .r3d #turnPill { backdrop-filter: blur(6px); }
+
+/* animated text */
+.pop3 { position: fixed; z-index: 45; pointer-events: none; transform: translate(-50%, -50%); font: 900 46px 'Nunito', sans-serif; color: #fff; white-space: nowrap; -webkit-text-stroke: 2px #d11a45; paint-order: stroke fill;
+  text-shadow: 0 4px 0 #8c0f2c, 0 0 22px #ff2f5e, 0 8px 18px rgba(0, 0, 0, .5); animation: p3float var(--dur, 1.4s) cubic-bezier(.2, .7, .2, 1) forwards; }
+.pop3 i { display: inline-block; font-style: normal; opacity: 0; animation: p3slam .42s cubic-bezier(.2, 1.6, .4, 1) calc(var(--i) * var(--st, 30ms) * var(--spd, 1)) forwards; }
+.pop3 .num { display: inline-block; animation: p3pulse .12s ease-out infinite alternate; }
+.pop3.land .num { animation: p3land .38s cubic-bezier(.2, 1.8, .4, 1); }
+.pop3.weak { font-size: 58px; -webkit-text-stroke: 2px #c76a00; text-shadow: 0 4px 0 #7a3a0a, 0 0 26px #ffb02e, 0 8px 18px #0006; }
+.pop3.heal { -webkit-text-stroke: 2px #0f8f4a; text-shadow: 0 4px 0 #0a5a2a, 0 0 22px #1fd66a; }
+.pop3.small { font-size: 26px; -webkit-text-stroke: 1.5px #4a3aa8; text-shadow: 0 3px 0 #2b2166, 0 0 16px #8f7cf5; letter-spacing: .06em; }
+.pop3.small i { animation-name: p3track; }
+@keyframes p3slam { 0% { opacity: 0; transform: translateY(-40px) scale(2.6) rotate(-14deg); filter: blur(6px); } 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes p3track { 0% { opacity: 0; transform: scaleX(2.4) translateY(8px); filter: blur(5px); } 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes p3float { 0%, 62% { margin-top: 0; opacity: 1; } 100% { margin-top: -64px; opacity: 0; } }
+@keyframes p3pulse { from { transform: scale(1.04); } to { transform: scale(.98); } }
+@keyframes p3land { 0% { transform: scale(1.7); filter: brightness(2.2); } 100% { transform: none; filter: none; } }
+
+.bn3 { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; padding: .22em 0; animation: bnwrap 1.9s cubic-bezier(.2, .8, .2, 1) forwards; }
+.bn3 .bar { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bc) 55%, #000 45%) 18%, color-mix(in srgb, var(--bc) 55%, #000 45%) 82%, transparent); opacity: .86; transform: scaleX(0); animation: bnbar 1.9s cubic-bezier(.2, .9, .2, 1) forwards; }
+.bn3 b { position: relative; font: 900 clamp(38px, 7.5vw, 92px) 'Nunito', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #fff; text-shadow: 0 0 30px var(--bc), 0 4px 18px rgba(20, 30, 90, .6); animation: none; }
+.bn3 b i { display: inline-block; font-style: normal; opacity: 0; animation: bnl .5s cubic-bezier(.2, 1.3, .3, 1) calc(120ms + var(--i) * var(--st, 38ms) * var(--spd, 1)) forwards; }
+.bn3 b::after { content: ''; position: absolute; inset: -10% 0; background: linear-gradient(100deg, transparent 40%, rgba(255, 255, 255, .85) 50%, transparent 60%); mix-blend-mode: overlay; transform: translateX(-120%); animation: bnsweep 1s .5s ease-out forwards; }
+@keyframes bnl { 0% { opacity: 0; transform: perspective(300px) rotateX(-95deg) translateY(30px) scale(1.3); filter: blur(8px); } 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes bnbar { 0% { transform: scaleX(0); } 22% { transform: scaleX(1); } 78% { transform: scaleX(1); opacity: .86; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes bnsweep { to { transform: translateX(120%); } }
+@keyframes bnwrap { 0%, 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.06); } }
+
+#t3layer { position: fixed; inset: 0; z-index: 62; pointer-events: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 30vh; }
+.rd { position: absolute; width: min(540px, 88vw); padding: 14px 20px 16px; border-radius: 18px; color: #fff; font-family: 'Nunito', sans-serif; background: linear-gradient(160deg, rgba(14, 20, 52, .86), rgba(10, 14, 38, .78)); backdrop-filter: blur(10px);
+  border: 1.5px solid var(--rc, #8f7cf5); box-shadow: 0 0 40px color-mix(in srgb, var(--rc, #8f7cf5) 55%, transparent), 0 18px 50px #0009; animation: rdin .42s cubic-bezier(.2, 1.3, .3, 1) both; }
+.rd.out { animation: rdout .45s ease-in forwards; }
+.rd .rk { font: 900 12px 'Nunito'; letter-spacing: .32em; color: var(--rc, #8f7cf5); margin-bottom: 4px; }
+.rd .rn { font: 900 clamp(24px, 4.4vw, 38px) 'Nunito'; display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; }
+.rd .rn i { display: inline-block; font-style: normal; opacity: 0; animation: p3track .45s cubic-bezier(.2, 1, .3, 1) calc(var(--i) * var(--st, 32ms) * var(--spd, 1)) forwards; }
+.rd .rdm { margin-left: auto; font-size: 1.15em; color: #fff; text-shadow: 0 0 16px var(--rc); animation: p3land .5s .35s cubic-bezier(.2, 1.8, .4, 1) both; }
+.rd .rt { margin-top: 8px; font: 700 clamp(14px, 2.4vw, 18px)/1.45 'Nunito'; color: #dfe6ff; }
+.rd i.w, .rd i.c { display: inline-block; font-style: normal; opacity: 0; }
+.rd.still i { opacity: 1 !important; animation: none !important; }
+.k-attack { --rc: #ff6a4d; } .k-ability { --rc: #22e0c8; } .k-trainer { --rc: #ffb347; } .k-cond { --rc: #b46cff; }
+.k-attack i.w { animation: w-slam .34s cubic-bezier(.2, 1.7, .4, 1) calc(280ms + var(--i) * 55ms * var(--spd, 1)) forwards; color: #ffe1d6; }
+.k-ability i.w { animation: w-glow .5s ease-out calc(280ms + var(--i) * 55ms * var(--spd, 1)) forwards; text-shadow: 0 0 14px rgba(34, 224, 200, .8); }
+.k-trainer i.c { animation: w-type .01s steps(1) calc(300ms + var(--i) * 14ms * var(--spd, 1)) forwards; }
+.k-trainer .rt { border-left: 3px solid #ffb347; padding-left: 10px; font-style: italic; }
+.k-trainer .rt::after { content: ''; display: inline-block; width: 8px; height: 1.1em; background: #ffb347; vertical-align: -2px; margin-left: 2px; animation: blink .5s steps(1) infinite; }
+.k-cond i.w { animation: w-wob .6s ease-out calc(280ms + var(--i) * 60ms * var(--spd, 1)) forwards; color: #e6d4ff; }
+@keyframes w-slam { 0% { opacity: 0; transform: scale(2.4) rotate(-7deg); filter: blur(6px); } 70% { opacity: 1; transform: scale(.94); filter: none; } 100% { opacity: 1; transform: none; } }
+@keyframes w-glow { 0% { opacity: 0; transform: translateX(-14px); filter: blur(8px); } 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes w-type { to { opacity: 1; } }
+@keyframes w-wob { 0% { opacity: 0; transform: translateY(10px) rotate(-8deg); } 40% { opacity: 1; transform: translateY(-4px) rotate(6deg); } 70% { transform: rotate(-3deg); } 100% { opacity: 1; transform: none; } }
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes rdin { 0% { opacity: 0; transform: translateY(24px) scale(.88); } 100% { opacity: 1; transform: none; } }
+@keyframes rdout { to { opacity: 0; transform: translateY(-16px) scale(.97); filter: blur(4px); } }
+.reduce-motion .pop3, .reduce-motion .pop3 i, .reduce-motion .bn3, .reduce-motion .bn3 .bar, .reduce-motion .bn3 b i, .reduce-motion .bn3 b::after, .reduce-motion .rd, .reduce-motion .rd i { animation-duration: .01s !important; animation-delay: 0s !important; }
